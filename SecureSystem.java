@@ -17,37 +17,9 @@ class SecureSystem{
 		
 		
 		// input
-		Scanner in = new Scanner(new File(args[0])); 
+		input(new File(args[0]));
 
 
-		String[] line = in.nextLine().split("\\s");
-		for(String s : line)
-			if(DEBUG) System.out.println("s: \"" + s + '"');
-
-
-
-		if (!line[0].equals("read") && !line[0].equals("write"))
-		{
-			if(DEBUG) System.out.println("BadInstruction: \"" + line[0] + '"');
-			
-
-		}
-		// String command = line;
-		// if(DEBUG) System.out.println("command: " + command);
-		String subj = in.next();
-		if(DEBUG) System.out.println("subj: " + subj);
-		String obj = in.next();
-		if(DEBUG) System.out.println("obj: " + obj);
-		String val = in.next();
-		if(DEBUG) System.out.println("val: " + val);
-
-		
-
-		in.close();
-
-
-		
-		
 		
 		
 		
@@ -70,6 +42,34 @@ class SecureSystem{
 		// sys.getReferenceMonitor().createNewObject("Lobj", low);
 		// sys.getReferenceMonitor().createNewObject("Hobj", high);
 		
+	}
+	
+	public static void input(File file) throws Exception{
+		Scanner in = new Scanner(file); 
+
+		while(in.hasNext()){
+			String line  = in.nextLine();
+			if(DEBUG) System.out.println("line: " + line);
+			String[] command = line.split("\\s");
+			for(String s : command)
+				if(DEBUG) System.out.println("s: \"" + s + '"');
+
+			if (command[0].equals("read") && command.length == 3){
+
+			}else if(command[0].equals("write") && command.length == 4){
+				String val = command[3];
+				if(DEBUG) System.out.println("val: " + val);
+			}else{
+				if(DEBUG) System.out.println("BadInstruction: \"" + line + '"');
+				continue;
+			}
+			String subj = command[1];
+			if(DEBUG) System.out.println("subj: " + subj);
+			String obj = command[2];
+			if(DEBUG) System.out.println("obj: " + obj);
+		}
+
+		in.close();
 	}
 	
 	public static class Subj {
@@ -115,7 +115,7 @@ class SecureSystem{
 		
 	}
 	
-	class ObjecManager{
+	class ObjectManager{
 		
 		
 	}
