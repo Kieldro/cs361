@@ -1,7 +1,10 @@
+import java.io.*; 
+import java.util.*; 
+
 class SecureSystem{
 	private static boolean DEBUG = true;
 	
-	public static void main (String[] args){
+	public static void main (String[] args) throws Exception{
 		System.out.println("Victory!");
 		
 		
@@ -10,7 +13,14 @@ class SecureSystem{
 		
 		if(DEBUG) System.out.println("Hal: " + Hal);
 		if(DEBUG) System.out.println("Lyle: " + Lyle);
+		if(DEBUG) System.out.println("args: " + args[0]);
 		
+		
+		// input
+		Scanner in = new Scanner(new File(args[0])); 
+		String text = in.nextLine(); 
+		in.close();
+		if(DEBUG) System.out.println("text: " + text);
 		
 		
 		
@@ -37,6 +47,30 @@ class SecureSystem{
 		
 	}
 	
+	public static class Subj {
+		public String name;
+		public int temp;
+		
+		public Subj(String name){
+			this.name = name;
+			temp = 0;
+		}
+		
+		public read(Obj obj){
+			temp = obj.value;
+		}
+		
+		public write(Obj obj, int value){
+			if (true)
+				obj.value = value;
+			
+		}
+		
+		public String toString(){
+			return "(" + name + ", " + temp + ") (name, temp)";
+		}
+	}
+	
 	public static class Obj {
 		public String name;
 		public int value;
@@ -49,6 +83,21 @@ class SecureSystem{
 		public String toString(){
 			return "(" + name + ", " + value + ") (name, value)";
 		}
+	}
+	
+	class InstructionObject {
+		
+		
+	}
+	
+	class ObjecManager{
+		
+		
+	}
+
+	class ReferenceMonitor {
+		
+		
 	}
 	
 }

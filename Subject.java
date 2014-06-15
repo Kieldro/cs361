@@ -1,4 +1,4 @@
-public class Subject{
+class Subject{
 	
 	
 }
