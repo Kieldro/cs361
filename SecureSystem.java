@@ -18,9 +18,34 @@ class SecureSystem{
 		
 		// input
 		Scanner in = new Scanner(new File(args[0])); 
-		String text = in.nextLine(); 
+
+
+		String[] line = in.nextLine().split("\\s");
+		for(String s : line)
+			if(DEBUG) System.out.println("s: \"" + s + '"');
+
+
+
+		if (!line[0].equals("read") && !line[0].equals("write"))
+		{
+			if(DEBUG) System.out.println("BadInstruction: \"" + line[0] + '"');
+			
+
+		}
+		// String command = line;
+		// if(DEBUG) System.out.println("command: " + command);
+		String subj = in.next();
+		if(DEBUG) System.out.println("subj: " + subj);
+		String obj = in.next();
+		if(DEBUG) System.out.println("obj: " + obj);
+		String val = in.next();
+		if(DEBUG) System.out.println("val: " + val);
+
+		
+
 		in.close();
-		if(DEBUG) System.out.println("text: " + text);
+
+
 		
 		
 		
@@ -56,11 +81,11 @@ class SecureSystem{
 			temp = 0;
 		}
 		
-		public read(Obj obj){
+		public void read(Obj obj){
 			temp = obj.value;
 		}
 		
-		public write(Obj obj, int value){
+		public void write(Obj obj, int value){
 			if (true)
 				obj.value = value;
 			
