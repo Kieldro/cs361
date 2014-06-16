@@ -5,20 +5,33 @@ class SecureSystem{
 	private static boolean DEBUG = true;
 	
 	public static void main (String[] args) throws Exception{
-		System.out.println("Victory!");
+		SecureSystem sys = new SecureSystem();
+		
+		if (DEBUG)sys.printState();
 		
 		
-		Obj Hal = new Obj("Hal", 3);
-		Obj Lyle = new Obj("Lyle", 5);
+		// create 2 initial objects
+		Obj HObj = new Obj("HObj", 3);
+		Obj LObj = new Obj("LObj", 5);
 		
-		if(DEBUG) System.out.println("Hal: " + Hal);
-		if(DEBUG) System.out.println("Lyle: " + Lyle);
+		// create 2 subjects
+		
+		
+		// if(DEBUG) System.out.println("Hal: " + Hal);
+		// if(DEBUG) System.out.println("Lyle: " + Lyle);
 		if(DEBUG) System.out.println("args: " + args[0]);
 		
 		
 		// input
-		input(new File(args[0]));
+		Scanner in = new Scanner(new File(args[0])); 
 
+
+		while(in.hasNext()){
+			InstructionObject instruction = sys.input(in.nextLine());
+
+		}
+
+		in.close();
 
 		
 		
@@ -44,36 +57,43 @@ class SecureSystem{
 		
 	}
 	
-	public static void input(File file) throws Exception{
-		Scanner in = new Scanner(file); 
+	public InstructionObject input(String line) throws Exception{
+		if(DEBUG) System.out.println("line: " + line);
+		String[] command = line.split("\\s");
+		for(String s : command)
+			if(DEBUG) System.out.println("s: \"" + s + '"');
 
-		while(in.hasNext()){
-			String line  = in.nextLine();
-			if(DEBUG) System.out.println("line: " + line);
-			String[] command = line.split("\\s");
-			for(String s : command)
-				if(DEBUG) System.out.println("s: \"" + s + '"');
+		if (command[0].equals("read") && command.length == 3){
 
-			if (command[0].equals("read") && command.length == 3){
-
-			}else if(command[0].equals("write") && command.length == 4){
-				String val = command[3];
-				if(DEBUG) System.out.println("val: " + val);
-			}else{
-				if(DEBUG) System.out.println("BadInstruction: \"" + line + '"');
-				continue;
-			}
-			String subj = command[1];
-			if(DEBUG) System.out.println("subj: " + subj);
-			String obj = command[2];
-			if(DEBUG) System.out.println("obj: " + obj);
+		}else if(command[0].equals("write") && command.length == 4){
+			String val = command[3];
+			if(DEBUG) System.out.println("val: " + val);
+		}else{
+			if(DEBUG) System.out.println("BadInstruction: \"" + line + '"');
+			return this.new InstructionObject();
 		}
+		String subj = command[1];
+		if(DEBUG) System.out.println("subj: " + subj);
+		String obj = command[2];
+		if(DEBUG) System.out.println("obj: " + obj);
 
-		in.close();
+		return new InstructionObject();
+	}
+	
+	public void createSubject(){
+		
+		
+	}
+	
+	public void printState(){
+		// print objects
+		
+		// print subjects
+		
 	}
 	
 	public static class Subj {
-		public String name;
+		public static String name;
 		public int temp;
 		
 		public Subj(String name){
@@ -114,6 +134,7 @@ class SecureSystem{
 		
 		
 	}
+	// clas
 	
 	class ObjectManager{
 		
@@ -123,6 +144,12 @@ class SecureSystem{
 	class ReferenceMonitor {
 		
 		
+	}
+
+	class SecurityLevel{
+		final int HIGH = 1;
+		final int LOW = 0;
+
 	}
 	
 }
