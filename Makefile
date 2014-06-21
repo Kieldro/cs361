@@ -1,7 +1,7 @@
 all: SecureSystem.java
 	clear
 	javac *.java
-	java SecureSystem instructionList
+	java -ea SecureSystem instructionList
 	
 clean:
 	rm *.class

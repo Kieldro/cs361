@@ -4,6 +4,10 @@ import java.util.*;
 class SecureSystem{
 	private static boolean DEBUG = true;
 	
+	public enum Operation 
+		{READ, WRITE, BAD};
+	
+	
 	public static void main (String[] args) throws Exception{
 		SecureSystem sys = new SecureSystem();
 		
@@ -57,27 +61,35 @@ class SecureSystem{
 		
 	}
 	
+	// Methods
+	
 	public InstructionObject input(String line) throws Exception{
 		if(DEBUG) System.out.println("line: " + line);
+		Operation op;
+		String subj;
+		String obj;
+		int val = 0;
+		
 		String[] command = line.split("\\s");
 		for(String s : command)
 			if(DEBUG) System.out.println("s: \"" + s + '"');
 
 		if (command[0].equals("read") && command.length == 3){
-
+			op = Operation.READ;
 		}else if(command[0].equals("write") && command.length == 4){
-			String val = command[3];
+			op = Operation.WRITE;
+			val = Integer.parseInt(command[3]);
 			if(DEBUG) System.out.println("val: " + val);
 		}else{
 			if(DEBUG) System.out.println("BadInstruction: \"" + line + '"');
-			return this.new InstructionObject();
+			return new InstructionObject(Operation.BAD);
 		}
-		String subj = command[1];
+		subj = command[1];
 		if(DEBUG) System.out.println("subj: " + subj);
-		String obj = command[2];
+		obj = command[2];
 		if(DEBUG) System.out.println("obj: " + obj);
 
-		return new InstructionObject();
+		return new InstructionObject(op, subj, obj, val);
 	}
 	
 	public void createSubject(){
@@ -115,6 +127,7 @@ class SecureSystem{
 			return "(" + name + ", " + temp + ") (name, temp)";
 		}
 	}
+	// classes
 	
 	public static class Obj {
 		public String name;
@@ -132,9 +145,27 @@ class SecureSystem{
 	
 	class InstructionObject {
 		
+		Operation op;
+		String sub;
+		String obj;
+		int val = 0;
 		
+		// constructor
+		public InstructionObject(Operation operation, String s, String o, int v){
+			op = operation;
+			sub = s;
+			obj = o;
+			val  = v;
+		}
+		
+		public InstructionObject(Operation operation){
+			op = Operation.BAD;
+			assert operation == Operation.BAD : "Operation must be BAD.";
+			// sub = s;
+			// obj = o;
+			// val  = v;
+		}
 	}
-	// clas
 	
 	class ObjectManager{
 		
