@@ -1,10 +1,11 @@
-all: SecureSystem.java
+all: Security/*.java
 	clear
-	javac *.java
-	java -ea SecureSystem instructionList
+	cd Security/;	javac *.java
+	java -ea Security.SecureSystem instructionList
+	# clean
 	
 clean:
-	rm *.class
+	rm -r *.class
 	
 turnin: 
 	clean
