@@ -56,23 +56,22 @@ class SecureSystem{
 		int val = 0;
 		
 		String[] command = line.split("\\s");
-		for(String s : command)
-			if(DEBUG) System.out.println("s: \"" + s + '"');
+		// if(DEBUG) for(String s : command) System.out.println("s: \"" + s + '"');
 
 		if (command[0].equals("read") && command.length == 3){
 			op = Operation.READ;
 		}else if(command[0].equals("write") && command.length == 4){
 			op = Operation.WRITE;
 			val = Integer.parseInt(command[3]);
-			if(DEBUG) System.out.println("val: " + val);
+			// if(DEBUG) System.out.println("val: " + val);
 		}else{
 			if(DEBUG) System.out.println("BadInstruction: \"" + line + '"');
 			return badInstruction;
 		}
 		subj = command[1];
-		if(DEBUG) System.out.println("subj: " + subj);
+		// if(DEBUG) System.out.println("subj: " + subj);
 		obj = command[2];
-		if(DEBUG) System.out.println("obj: " + obj);
+		// if(DEBUG) System.out.println("obj: " + obj);
 
 		return new InstructionObject(op, subj, obj, val);
 	}
@@ -87,11 +86,12 @@ class SecureSystem{
 	public void printState(){
 		if(DEBUG) System.out.println("Printing system state...");
 		// print subjects
-		System.out.println(subjects.entrySet());
+		System.out.println(subjects.values());
 		// System.out.println("Hal: " + Hal);
 		// System.out.println("Lyle: " + Lyle);
 		
 		// print objects
+		monitor.printObjects();
 		
 	}
 }
