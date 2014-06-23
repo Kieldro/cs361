@@ -14,8 +14,8 @@ class InstructionObject {
     }
     public InstructionObject(Operation operation, String s, String o, int v){
         op = operation;
-        subj = s;
-        obj = o;
+        subj = s.toLowerCase();
+        obj = o.toLowerCase();
         val  = v;
     }
 }

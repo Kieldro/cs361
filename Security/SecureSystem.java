@@ -26,16 +26,16 @@ class SecureSystem{
 	// Methods
 	// nonstatic method
 	public void runSystem() throws Exception{
-		if (DEBUG) printState();
 		
 		// create 2 subjects
 		createSubject("Lyle", SecurityLevel.LOW);
 		createSubject("Hal", SecurityLevel.HIGH);
 		
 		// // create 2 initial objects
-		monitor.createObject("Lobj", SecurityLevel.LOW );
-		monitor.createObject("Hobj", SecurityLevel.HIGH);
+		monitor.createObject("LObj", SecurityLevel.LOW );
+		monitor.createObject("HObj", SecurityLevel.HIGH);
 		
+		if (DEBUG) printState();
 		// input
 		Scanner in = new Scanner(inFile); 
 		
@@ -58,9 +58,9 @@ class SecureSystem{
 		String[] command = line.split("\\s");
 		// if(DEBUG) for(String s : command) System.out.println("s: \"" + s + '"');
 
-		if (command[0].equals("read") && command.length == 3){
+		if (command[0].toLowerCase().equals("read") && command.length == 3){
 			op = Operation.READ;
-		}else if(command[0].equals("write") && command.length == 4){
+		}else if(command[0].toLowerCase().equals("write") && command.length == 4){
 			op = Operation.WRITE;
 			val = Integer.parseInt(command[3]);
 			// if(DEBUG) System.out.println("val: " + val);
@@ -78,20 +78,15 @@ class SecureSystem{
 	
 	public void createSubject(String name, SecurityLevel level){
 		Subject subj = new Subject(name);
-		subjects.put(name, subj);
-		// ReferenceMonitor level
+		subjects.put(name.toLowerCase(), subj);
+		monitor.setSubjLabel(name, level);
 		
 	}
 	
 	public void printState(){
 		if(DEBUG) System.out.println("Printing system state...");
-		// print subjects
-		System.out.println(subjects.values());
-		// System.out.println("Hal: " + Hal);
-		// System.out.println("Lyle: " + Lyle);
-		
-		// print objects
-		monitor.printObjects();
+		System.out.println(subjects.values());		// print subjects
+		monitor.printObjects();			// print objects
 		
 	}
 }
