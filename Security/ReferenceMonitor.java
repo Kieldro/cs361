@@ -19,17 +19,27 @@ class ReferenceMonitor {
             return;
         
         Subject subj = SecureSystem.subjects.get(instruction.subj);
+        SecurityLevel subjLevel = subjectLabels.get(instruction.subj);
+            // if(SecureSystem.DEBUG) System.out.println("label: " + instruction.subj);
         String obj  = instruction.obj;
+        SecurityLevel objLevel = objectLabels.get(instruction.obj);
         int val = instruction.val;
+        assert objLevel != null && subjLevel != null : "NULL label.";
         
         if(instruction.op == Operation.READ){
-           
-            subj.temp = objectManager.read(obj);
-            if(SecureSystem.DEBUG) System.out.println("READ: " + subj.temp);
+            int result;
+            if (subjLevel.dominates(objLevel)){
+                result = objectManager.read(obj);
+            }else{
+                result = 0;
+            }
+            subj.temp = result;
+            if(SecureSystem.DEBUG) System.out.println("READ: " + result);
         }else if(instruction.op == Operation.WRITE){
-           
-            objectManager.write(obj, val);
-            if(SecureSystem.DEBUG) System.out.println("WRITE: " + val);
+            if (objLevel.dominates(subjLevel)){
+                objectManager.write(obj, val);
+                if(SecureSystem.DEBUG) System.out.println("WRITE: " + val);
+            }
         }
         
     }

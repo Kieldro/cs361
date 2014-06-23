@@ -2,6 +2,7 @@ package Security;
 
 import java.io.*; 
 import java.util.*; 
+import Security.SecurityLevel;
 
 class SecureSystem{
 	public static boolean DEBUG = true;
@@ -11,11 +12,14 @@ class SecureSystem{
 	private final InstructionObject badInstruction = 
 		new InstructionObject(Operation.BAD, "NA", "NA");
 	private ReferenceMonitor monitor = new ReferenceMonitor(this);
+	SecurityLevel low  = SecurityLevel.LOW;
+	SecurityLevel high = SecurityLevel.HIGH;
+	
 	
 	public enum Operation 
 		{READ, WRITE, BAD};
-	public enum SecurityLevel 
-		{LOW, HIGH};
+	// public enum SecurityLevel 
+	// 	{LOW, HIGH};
 	
 	public static void main (String[] args) throws Exception{
 		// if(DEBUG) System.out.println("args: " + args[0]);
@@ -28,12 +32,12 @@ class SecureSystem{
 	public void runSystem() throws Exception{
 		
 		// create 2 subjects
-		createSubject("Lyle", SecurityLevel.LOW);
-		createSubject("Hal", SecurityLevel.HIGH);
+		createSubject("Lyle", low);
+		createSubject("Hal", high);
 		
 		// // create 2 initial objects
-		monitor.createObject("LObj", SecurityLevel.LOW );
-		monitor.createObject("HObj", SecurityLevel.HIGH);
+		monitor.createObject("LObj", low );
+		monitor.createObject("HObj", high);
 		
 		if (DEBUG) printState();
 		// input
@@ -56,7 +60,7 @@ class SecureSystem{
 		int val = 0;
 		
 		String[] command = line.trim().split("\\s+");
-		if(DEBUG) for(String s : command) System.out.println("s: \"" + s + '"');
+		// if(DEBUG) for(String s : command) System.out.println("s: \"" + s + '"');
 
 		if (command[0].toLowerCase().equals("read") && command.length == 3){
 			op = Operation.READ;
@@ -78,15 +82,16 @@ class SecureSystem{
 	
 	public void createSubject(String name, SecurityLevel level){
 		Subject subj = new Subject(name);
-		subjects.put(name.toLowerCase(), subj);
+        name = name.toLowerCase();
+		subjects.put(name, subj);
 		monitor.setSubjLabel(name, level);
 		
 	}
 	
 	public void printState(){
 		if(DEBUG) System.out.println("Printing system state...");
-		System.out.println(subjects.values());		// print subjects
 		monitor.printObjects();			// print objects
+		System.out.println(subjects.values());		// print subjects
 		
 	}
 }
