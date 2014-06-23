@@ -5,7 +5,7 @@ all: Security/*.java
 	# make clean
 	
 clean:
-	rm -r Security/*.class
+	rm -rf Security/*.class
 	
 turnin: clean
 	zip -r keo_program1.zip *
