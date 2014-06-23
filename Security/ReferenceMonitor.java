@@ -8,6 +8,11 @@ class ReferenceMonitor {
     private HashMap<String, SecurityLevel> subjectLabels = new HashMap();
     private HashMap<String, SecurityLevel> objectLabels = new HashMap();
     private ObjectManager objectManager = new ObjectManager();
+    private SecureSystem sys;
+    
+    public ReferenceMonitor(SecureSystem sys){
+        this.sys = sys;
+    }
     
     public void execute (InstructionObject instruction){
         if (instruction.op == Operation.BAD)
@@ -18,12 +23,15 @@ class ReferenceMonitor {
         int val = instruction.val;
         
         if(instruction.op == Operation.READ){
-            objectManager.read(obj);
-            
+           
+            subj.temp = objectManager.read(obj);
+            if(SecureSystem.DEBUG) System.out.println("READ: " + subj.temp);
+        }else if(instruction.op == Operation.WRITE){
+           
+            objectManager.write(obj, val);
+            if(SecureSystem.DEBUG) System.out.println("WRITE: " + val);
         }
         
-        
-        // subj.temp = 0;
     }
     
     public void createObject(String name, SecurityLevel level){

@@ -6,8 +6,8 @@ read Hal LObj
 write Hal LObj 200
 read Hal HObj
 read Lyle LObj
-read Lyle HObj
+read Lyle  HObj
 foo Lyle LObj
 Hi Lyle,This is Hal
 The missile launch code is 1234567
-READ LYLE lobj
+READ LYLE hobj

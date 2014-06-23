@@ -4,13 +4,13 @@ import java.io.*;
 import java.util.*; 
 
 class SecureSystem{
-	private static boolean DEBUG = true;
+	public static boolean DEBUG = true;
 	private static SecureSystem sys = new SecureSystem();
 	private static File inFile;
 	public static HashMap<String, Subject> subjects = new HashMap();
 	private final InstructionObject badInstruction = 
 		new InstructionObject(Operation.BAD, "NA", "NA");
-	private ReferenceMonitor monitor = new ReferenceMonitor();
+	private ReferenceMonitor monitor = new ReferenceMonitor(this);
 	
 	public enum Operation 
 		{READ, WRITE, BAD};
@@ -18,7 +18,7 @@ class SecureSystem{
 		{LOW, HIGH};
 	
 	public static void main (String[] args) throws Exception{
-		if(DEBUG) System.out.println("args: " + args[0]);
+		// if(DEBUG) System.out.println("args: " + args[0]);
 		inFile = new File(args[0]);
 		sys.runSystem();
 	}
@@ -55,8 +55,8 @@ class SecureSystem{
 		String obj;
 		int val = 0;
 		
-		String[] command = line.split("\\s");
-		// if(DEBUG) for(String s : command) System.out.println("s: \"" + s + '"');
+		String[] command = line.trim().split("\\s+");
+		if(DEBUG) for(String s : command) System.out.println("s: \"" + s + '"');
 
 		if (command[0].toLowerCase().equals("read") && command.length == 3){
 			op = Operation.READ;
