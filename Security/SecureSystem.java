@@ -6,37 +6,42 @@ import Security.SecurityLevel;
 
 class SecureSystem{
 	public static boolean DEBUG = true;
-	private static SecureSystem sys = new SecureSystem();
+	private static SecureSystem sys;
 	private static File inFile;
 	public static HashMap<String, Subject> subjects = new HashMap();
 	private final InstructionObject badInstruction = 
 		new InstructionObject(Operation.BAD, "NA", "NA");
-	private ReferenceMonitor monitor = new ReferenceMonitor(this);
-	SecurityLevel low  = SecurityLevel.LOW;
-	SecurityLevel high = SecurityLevel.HIGH;
+	private static ReferenceMonitor monitor = new ReferenceMonitor(sys);
+	public static SecurityLevel low  = SecurityLevel.LOW;
+	public static SecurityLevel high = SecurityLevel.HIGH;
 	
 	
 	public enum Operation 
 		{READ, WRITE, CREATE, DESTROY, RUN, BAD};
 	
+	// Constructor
+	public SecureSystem(File file){
+		inFile = file;
+	}
+	
 	public static void main (String[] args) throws Exception{
 		// if(DEBUG) System.out.println("args: " + args[0]);
-		inFile = new File(args[0]);
+		sys = new SecureSystem(new File(args[0]));
+		
+		// create 2 subjects
+		sys.createSubject("Lyle", low);
+		sys.createSubject("Hal", high);
+		
+		// create 2 initial objects
+		monitor.createObject("LObj", low );
+		monitor.createObject("HObj", high);
+		
 		sys.runSystem();
 	}
 	
 	// Methods
 	// nonstatic method
 	public void runSystem() throws Exception{
-		
-		// create 2 subjects
-		createSubject("Lyle", low);
-		createSubject("Hal", high);
-		
-		// create 2 initial objects
-		monitor.createObject("LObj", low );
-		monitor.createObject("HObj", high);
-		
 		if (DEBUG) printState();
 		// input
 		Scanner in = new Scanner(inFile); 
