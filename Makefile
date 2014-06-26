@@ -1,8 +1,14 @@
-all: Security/*.java
+all: compile
+	clear
+	java Security.CovertChannel inFile
+	
+a1:	
 	clear
 	cd Security/;	javac *.java
 	java -ea Security.SecureSystem instructionList
-	# make clean
+	
+compile: Security/*.java
+	cd Security/; javac *.java
 	
 clean:
 	rm -rf Security/*.class
