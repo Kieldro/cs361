@@ -6,4 +6,8 @@ kieldro@gmail.com
 Assignment 1
 Implements a simple "secure" system following the Bell and LaPadula (BLP) security rules--simple security, the *-property, and strong tranquility.
 
-RUN with: make
+RUN with: make a1
+
+Assignment 2
+6-26-2014
+Run with : make

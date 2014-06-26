@@ -26,20 +26,33 @@ class ReferenceMonitor {
         int val = instruction.val;
         assert objLevel != null && subjLevel != null : "NULL label.";
         
-        if(instruction.op == Operation.READ){
-            int result;
-            if (subjLevel.dominates(objLevel)){
-                result = objectManager.read(obj);
-            }else{
-                result = 0;
-            }
-            subj.temp = result;
-            if(SecureSystem.DEBUG) System.out.println("READ: " + result);
-        }else if(instruction.op == Operation.WRITE){
-            if (objLevel.dominates(subjLevel)){
-                objectManager.write(obj, val);
-                if(SecureSystem.DEBUG) System.out.println("WRITE: " + val);
-            }
+        switch (instruction.op){
+            case READ:
+                int result = subjLevel.dominates(objLevel) ? 
+                    objectManager.read(obj) : 0;
+                subj.temp = result;
+                if(SecureSystem.DEBUG) System.out.println("READ: " + result);
+            break;
+            case WRITE:
+                if (objLevel.dominates(subjLevel)){
+                    objectManager.write(obj, val);
+                    if(SecureSystem.DEBUG) System.out.println("WRITE: " + val);
+                }
+            break;
+            case CREATE:
+                // a new object is added to the state with SecurityLevel equal to the level of the creating subject. 
+                // It is given an initial value of 0. If there already exists an object with that name at any level, the operation is a no-op.
+                
+            break;
+            case DESTROY:
+                // eliminate the designated object from the state, 
+                // assuming that the object exists and the subject has WRITE access to the object according to the *-property of BLP. 
+                // Otherwise, the operation is a no-op.
+                
+            break;
+            case RUN:
+                
+                
         }
         
     }

@@ -17,9 +17,7 @@ class SecureSystem{
 	
 	
 	public enum Operation 
-		{READ, WRITE, BAD};
-	// public enum SecurityLevel 
-	// 	{LOW, HIGH};
+		{READ, WRITE, CREATE, DESTROY, RUN, BAD};
 	
 	public static void main (String[] args) throws Exception{
 		// if(DEBUG) System.out.println("args: " + args[0]);
@@ -35,7 +33,7 @@ class SecureSystem{
 		createSubject("Lyle", low);
 		createSubject("Hal", high);
 		
-		// // create 2 initial objects
+		// create 2 initial objects
 		monitor.createObject("LObj", low );
 		monitor.createObject("HObj", high);
 		

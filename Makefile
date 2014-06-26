@@ -1,6 +1,6 @@
 all: compile
 	clear
-	java Security.CovertChannel inFile
+	java -ea Security.CovertChannel inFile
 	
 a1:	
 	clear
