@@ -26,42 +26,40 @@ class ReferenceMonitor {
         String obj  = instruction.obj;
         int val = instruction.value;
         
+        SecurityLevel objLevel = objectLabels.get(obj);
+        // assert objLevel != null : "objLevel null" + objectLabels.keySet();
+        
         switch (instruction.op){
-            case CREATE:
-                // a new object is added to the state with SecurityLevel equal to the level of the creating subject. 
-                // It is given an initial value of 0. If there already exists an object with that name at any level, the operation is a no-op.
-                if(objectManager.exists(obj))
-                    return;
+        case CREATE:
+            // a new object is added to the state with SecurityLevel equal to the level of the creating subject. 
+            // It is given an initial value of 0. If there already exists an object with that name at any level, the operation is a no-op.
+            if(!objectManager.exists(obj))
                 createObject(obj, subjLevel);
-            return;
-            case DESTROY:
-                // eliminate the designated object from the state, 
-                // assuming that the object exists and the subject has WRITE access to the object according to the *-property of BLP. 
-                // Otherwise, the operation is a no-op.
-                
-            return;
-            case RUN:
-                
-                
+        break;
+        case RUN:
+            
+            
+        break;
+        case DESTROY:
+            // eliminate the designated object from the state, 
+            // assuming that the object exists and the subject has WRITE access to the object according to the *-property of BLP. 
+            // Otherwise, the operation is a no-op.
+            if (objectManager.exists(obj) && objLevel.dominates(subjLevel)){
+                objectManager.destroy(obj);
+            }
+        break;
+        case READ:
+            int result = subjLevel.dominates(objLevel) ? 
+                objectManager.read(obj) : 0;
+            subj.temp = result;
+            if(SecureSystem.DEBUG) System.out.println("READ: " + result);
+        break;
+        case WRITE:
+            if (objLevel.dominates(subjLevel)){
+                objectManager.write(obj, val);
+                if(SecureSystem.DEBUG) System.out.println("WRITE: " + val);
+            }
         }
-        
-        // SecurityLevel objLevel = objectLabels.get(obj);
-        // switch (instruction.op){
-        //     case READ:
-        //         int result = subjLevel.dominates(objLevel) ? 
-        //             objectManager.read(obj) : 0;
-        //         subj.temp = result;
-        //         if(SecureSystem.DEBUG) System.out.println("READ: " + result);
-        //     break;
-        //     case WRITE:
-        //         // assert objLevel != null : "NULL obj label.";
-        //         // if (objLevel.dominates(subjLevel)){
-        //         //     objectManager.write(obj, val);
-        //         //     if(SecureSystem.DEBUG) System.out.println("WRITE: " + val);
-        //         // }
-        //     break;
-        // }
-        
     }
     
     public void createObject(String name, SecurityLevel level){
@@ -77,32 +75,30 @@ class ReferenceMonitor {
     }
     
     public void printObjects(){
-        
         System.out.println("Objects: " + objectManager.objects.values());
-        
-        
     }
     
     class ObjectManager{
-            private HashMap<String, Object> objects = new HashMap();
-            
-            public int read (String name){
-                assert objects.containsKey(name): "Object doesn't not exist: " + name;
-                
-                return objects.get(name).value;
-            }
-            
-            public int write (String name, int val){
-                
-                
-                objects.get(name).value = val;
-                
-                return 0;
-            }
-            
-            public boolean exists(String obj){
-                return objects.containsKey(obj);
-            }
+        private HashMap<String, Object> objects = new HashMap();
+        
+        public int read (String name){
+            assert objects.containsKey(name): "Object doesn't not exist: " + name;
+            return objects.get(name).value;
+        }
+        
+        public int write (String name, int val){
+            objects.get(name).value = val;
+            return 0;
+        }
+        
+        public void destroy (String name){
+            objects.remove(name);
+            objectLabels.remove(name);
+        }
+        
+        public boolean exists(String obj){
+            return objects.containsKey(obj);
+        }
     }
 }
         

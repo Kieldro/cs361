@@ -21,9 +21,9 @@ class InstructionObject {
     public InstructionObject(String line) throws Exception{
         if(SecureSystem.DEBUG) System.out.println("line: " + line);
         
-        String[] command = line.trim().split("\\s+");
+        String[] command = line.trim().toLowerCase().split("\\s+");
         // if(SecureSystem.DEBUG) for(String s : command) System.out.println("s: \"" + s + '"');
-        op = opStrings.get(command[0].toLowerCase());
+        op = opStrings.get(command[0]);
         if (op == null || command.length < 2)
             op = Operation.BAD;
         
