@@ -15,14 +15,16 @@ class ReferenceMonitor {
     }
     
     public void execute (InstructionObject instruction){
-        if (instruction.op == Operation.BAD)
+        if (instruction.op == Operation.BAD){
+            // if(SecureSystem.DEBUG) System.out.println("BadInstruction");
             return;
+        }
         
         Subject subj = SecureSystem.subjects.get(instruction.subj);
         SecurityLevel subjLevel = subjectLabels.get(instruction.subj);
             // if(SecureSystem.DEBUG) System.out.println("label: " + instruction.subj);
         String obj  = instruction.obj;
-        int val = instruction.val;
+        int val = instruction.value;
         
         switch (instruction.op){
             case CREATE:
@@ -76,7 +78,7 @@ class ReferenceMonitor {
     
     public void printObjects(){
         
-        System.out.println(objectManager.objects.values());
+        System.out.println("Objects: " + objectManager.objects.values());
         
         
     }
