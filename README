@@ -11,4 +11,12 @@ RUN with: make a1
 Assignment 2
 6-26-2014
 Run with : make
-Timing info: 
+Bandwidth info: 
+average bandwidth: 
+machine type: 
+clock speed: 
+
+e.g.
+Pride and Prejudice    717,571 bytes   600 bits/ms
+Metamorphosis          141,411 bytes   1126 bits/ms
+Test                  45 bytes    40 bits/ms

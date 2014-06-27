@@ -1,22 +1,35 @@
 package Security;
 
-import java.io.*; 
-import java.util.*; 
+import java.io.*;
+import java.util.*;
+
+import static Security.SecureSystem.*;
 
 class CovertChannel{
     public static boolean logging = true;
     static SecureSystem sys;
-    static PrintWriter out;
+    static PrintWriter fout;
     static PrintWriter log;
     
     public static void main (String[] args) throws Exception{
-        if(SecureSystem.DEBUG) System.out.println("args: " + args[0]);
-        File inFile = new File(args[0]);
-        logging = true;
-        out = new PrintWriter(args[0] + ".out");
-        log = new PrintWriter("log");
+        String inFile;
         
-        sys = new SecureSystem(inFile);
+        if(DEBUG) System.out.println("args: " + args[0]);
+        if(DEBUG) System.out.println("length: " + args.length);
+        if(args.length == 2 && args[0].equals("v")){
+            inFile = args[1];
+            logging = true;
+        }else if(args.length == 1){
+            inFile = args[0];
+            logging = false;
+        }else{
+            System.out.println("Usage: java Security.CovertChannel [v] FILE");
+            return;
+        }
+        
+        fout = new PrintWriter(inFile + ".out");
+        log = new PrintWriter("log");
+        sys = new SecureSystem();
         CovertChannel covert = new CovertChannel();
         
         covert.run();
@@ -40,14 +53,14 @@ class CovertChannel{
             // String inString = "DESTROY LYLE OBJ";
             // String inString = "RUN LYLE";
             if(logging) log.println(inString);
-            if(SecureSystem.DEBUG) out.println(inString);
+            if(DEBUG) fout.println(inString);
             InstructionObject instruction = new InstructionObject(inString);
             sys.monitor.execute(instruction);
             sys.printState();
         }
         
         log.close();
-        out.close();
+        fout.close();
     }
     
 }

@@ -1,7 +1,7 @@
 package Security;
 
-import java.io.*; 
-import java.util.*; 
+import java.io.*;
+import java.util.*;
 
 class SecureSystem{
 	public static final boolean DEBUG = true;
@@ -20,6 +20,8 @@ class SecureSystem{
 	// Constructor
 	public SecureSystem(File file){
 		inFile = file;
+	}public SecureSystem(){
+		inFile = new File("NA");
 	}
 	
 	public static void main (String[] args) throws Exception{

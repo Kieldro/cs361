@@ -1,20 +1,19 @@
 prog_file = keo_program2.zip
 
-
 all: compile
 	clear
-	java -ea Security.CovertChannel inFile
+	java -ea Security.CovertChannel v FILENAME
 	
 a1:	
 	clear
-	cd Security/;	javac *.java
+	javac Security/*.java
 	java -ea Security.SecureSystem instructionList
 	
 compile: Security/*.java
-	cd Security/; javac *.java
+	javac  Security/*.java
 	
 clean:
-	rm -rf Security/*.class
+	rm -rf Security/*.class *.out
 	
 turnin: clean
 	zip -r $(prog_file) *
