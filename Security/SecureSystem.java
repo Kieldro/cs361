@@ -11,7 +11,7 @@ class SecureSystem{
 	public static SecurityLevel high = SecurityLevel.HIGH;
 	
 	private static SecureSystem sys;
-	private static ReferenceMonitor monitor = new ReferenceMonitor(sys);
+	public static ReferenceMonitor monitor = new ReferenceMonitor(sys);
 	private static File inFile;
 	
 	
@@ -68,6 +68,6 @@ class SecureSystem{
 		if(SecureSystem.DEBUG) System.out.println("Printing system state...");
 		monitor.printObjects();			// print objects
 		System.out.println("Subjects: " + subjects.values());		// print subjects
-		
+		System.out.println();
 	}
 }
