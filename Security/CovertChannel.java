@@ -2,7 +2,6 @@ package Security;
 
 import java.io.*; 
 import java.util.*; 
-// import Security.SecurityLevel;
 
 class CovertChannel{
     public static boolean logging = true;
@@ -33,13 +32,22 @@ class CovertChannel{
         // sys.runSystem();
         
         for(int i = 0; i < 3; ++i){
-            String inString = "CREATE HAL OBJ";
+            String inString = "RUN HAL";
+            // String inString = "CREATE HAL OBJ";
+            // String inString = "CREATE LYLE OBJ";
+            // String inString = "WRITE LYLE OBJ 1";
+            // String inString = "READ LYLE OBJ";
+            // String inString = "DESTROY LYLE OBJ";
+            // String inString = "RUN LYLE";
             if(logging) log.println(inString);
             if(SecureSystem.DEBUG) out.println(inString);
             InstructionObject instruction = new InstructionObject(inString);
             sys.monitor.execute(instruction);
             sys.printState();
         }
+        
+        log.close();
+        out.close();
     }
     
 }

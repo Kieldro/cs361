@@ -2,10 +2,9 @@ package Security;
 
 import java.io.*; 
 import java.util.*; 
-import Security.SecurityLevel;
 
 class SecureSystem{
-	public static boolean DEBUG = true;
+	public static final boolean DEBUG = true;
 	public static HashMap<String, Subject> subjects = new HashMap();
 	public static SecurityLevel low  = SecurityLevel.LOW;
 	public static SecurityLevel high = SecurityLevel.HIGH;

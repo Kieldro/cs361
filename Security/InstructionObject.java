@@ -1,7 +1,9 @@
 package Security;
 
-import java.util.*; 
-import Security.SecureSystem.*;
+import java.util.*;
+
+import static Security.SecureSystem.*;
+import static Security.SecureSystem.Operation.*;
 
 class InstructionObject {
     Operation op;
@@ -11,32 +13,32 @@ class InstructionObject {
     private static HashMap<String, Operation> opStrings = new HashMap();
     // static initializer
     static{
-        opStrings.put("read", Operation.READ);
-        opStrings.put("write", Operation.WRITE);
-        opStrings.put("create", Operation.CREATE);
-        opStrings.put("destroy", Operation.DESTROY);
-        opStrings.put("run", Operation.RUN);
+        opStrings.put("read", READ);
+        opStrings.put("write", WRITE);
+        opStrings.put("create", CREATE);
+        opStrings.put("destroy", DESTROY);
+        opStrings.put("run", RUN);
     }
     
     public InstructionObject(String line) throws Exception{
-        if(SecureSystem.DEBUG) System.out.println("line: " + line);
+        if(DEBUG) System.out.println("line: " + line);
         
         String[] command = line.trim().toLowerCase().split("\\s+");
-        // if(SecureSystem.DEBUG) for(String s : command) System.out.println("s: \"" + s + '"');
+        // if(DEBUG) for(String s : command) System.out.println("s: \"" + s + '"');
         op = opStrings.get(command[0]);
         if (op == null || command.length < 2)
-            op = Operation.BAD;
+            op = BAD;
         
         switch (op){
         case WRITE:
             if(command.length == 4){
                 value = Integer.parseInt(command[3]);
                 subj = command[1];
-                // if(SecureSystem.DEBUG) System.out.println("subj: " + subj);
+                // if(DEBUG) System.out.println("subj: " + subj);
                 obj = command[2];
-                // if(SecureSystem.DEBUG) System.out.println("value: " + value);
+                // if(DEBUG) System.out.println("value: " + value);
             }else{
-                op = Operation.BAD;
+                op = BAD;
             }
         break;
         case READ:
@@ -45,16 +47,17 @@ class InstructionObject {
             if (command.length == 3){
                 subj = command[1];
                 obj = command[2];
+            }else{
+                op = BAD;
             }
         break;
         case RUN:
-            if(command.length == 2){
-                op = Operation.RUN;
-            }
+            if (command.length != 2)
+                op = BAD;
         break;
         case BAD:
         default:
-            if(SecureSystem.DEBUG) System.out.println("BadInstruction: \"" + line + '"');
+            // if(DEBUG) System.out.println("BadInstruction: \"" + line + '"');
         }
     }
 }

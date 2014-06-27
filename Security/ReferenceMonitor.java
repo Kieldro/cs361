@@ -1,8 +1,9 @@
 package Security;
 
 import java.util.*;
-// import Security.*;
-import Security.SecureSystem.*;
+
+import static Security.SecureSystem.*;
+import static Security.SecureSystem.Operation.*;
 
 class ReferenceMonitor {
     private HashMap<String, SecurityLevel> subjectLabels = new HashMap();
@@ -15,14 +16,14 @@ class ReferenceMonitor {
     }
     
     public void execute (InstructionObject instruction){
-        if (instruction.op == Operation.BAD){
-            // if(SecureSystem.DEBUG) System.out.println("BadInstruction");
+        if (instruction.op == BAD){
+            if(DEBUG) System.out.println("Bad Instruction");
             return;
         }
         
-        Subject subj = SecureSystem.subjects.get(instruction.subj);
+        Subject subj = subjects.get(instruction.subj);
         SecurityLevel subjLevel = subjectLabels.get(instruction.subj);
-            // if(SecureSystem.DEBUG) System.out.println("label: " + instruction.subj);
+            // if(DEBUG) System.out.println("label: " + instruction.subj);
         String obj  = instruction.obj;
         int val = instruction.value;
         
@@ -52,12 +53,12 @@ class ReferenceMonitor {
             int result = subjLevel.dominates(objLevel) ? 
                 objectManager.read(obj) : 0;
             subj.temp = result;
-            if(SecureSystem.DEBUG) System.out.println("READ: " + result);
+            if(DEBUG) System.out.println("READ: " + result);
         break;
         case WRITE:
             if (objLevel.dominates(subjLevel)){
                 objectManager.write(obj, val);
-                if(SecureSystem.DEBUG) System.out.println("WRITE: " + val);
+                if(DEBUG) System.out.println("WRITE: " + val);
             }
         }
     }
