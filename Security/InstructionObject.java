@@ -52,7 +52,9 @@ class InstructionObject {
             }
         break;
         case RUN:
-            if (command.length != 2)
+            if (command.length == 2)
+                subj = command[1];
+            else
                 op = BAD;
         break;
         case BAD:

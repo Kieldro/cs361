@@ -22,24 +22,27 @@ class ReferenceMonitor {
         }
         
         Subject subj = subjects.get(instruction.subj);
+        assert subj != null : "subj is null: " + instruction.subj;
         SecurityLevel subjLevel = subjectLabels.get(instruction.subj);
             // if(DEBUG) System.out.println("label: " + instruction.subj);
         String obj  = instruction.obj;
         int val = instruction.value;
         
         SecurityLevel objLevel = objectLabels.get(obj);
-        // assert objLevel != null : "objLevel null" + objectLabels.keySet();
         
         switch (instruction.op){
         case CREATE:
             // a new object is added to the state with SecurityLevel equal to the level of the creating subject. 
             // It is given an initial value of 0. If there already exists an object with that name at any level, the operation is a no-op.
-            if(!objectManager.exists(obj))
+            if(!objectManager.exists(obj)){
                 createObject(obj, subjLevel);
+                if(DEBUG) System.out.println("CREATE: " + obj);
+            }else
+                if(DEBUG) System.out.println("CREATE(NO-OP): " + -1);
         break;
         case RUN:
-            
-            
+            subj.run();
+            if(DEBUG) System.out.println("RUN: " + subj);
         break;
         case DESTROY:
             // eliminate the designated object from the state, 
@@ -47,7 +50,9 @@ class ReferenceMonitor {
             // Otherwise, the operation is a no-op.
             if (objectManager.exists(obj) && objLevel.dominates(subjLevel)){
                 objectManager.destroy(obj);
-            }
+                if(DEBUG) System.out.println("DESTROY: " + obj);
+            }else
+                if(DEBUG) System.out.println("DESTROY(NO-OP): " + -1);
         break;
         case READ:
             int result = subjLevel.dominates(objLevel) ? 
@@ -59,7 +64,8 @@ class ReferenceMonitor {
             if (objLevel.dominates(subjLevel)){
                 objectManager.write(obj, val);
                 if(DEBUG) System.out.println("WRITE: " + val);
-            }
+            }else
+                if(DEBUG) System.out.println("WRITE(NO-OP): " + val);
         }
     }
     

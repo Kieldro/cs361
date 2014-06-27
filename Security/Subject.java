@@ -9,7 +9,8 @@ public class Subject {
     }
     
     // add it to a byte he's creating, and if the byte is complete, write it to the output.
-    public void run(Byte b){
+    public void run(){
+        assert temp == 0 || temp == 1;
         
         
     }

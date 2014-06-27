@@ -10,6 +10,14 @@ class CovertChannel{
     static SecureSystem sys;
     static PrintWriter fout;
     static PrintWriter log;
+    static final String[] instructionSet = 
+        {"RUN HAL", 
+        "CREATE HAL  OBJ", 
+        "CREATE LYLE OBJ", 
+        "WRITE LYLE OBJ 1", 
+        "READ  LYLE OBJ", 
+        "DESTROY LYLE OBJ", 
+        "RUN LYLE"};
     
     public static void main (String[] args) throws Exception{
         String inFile;
@@ -37,30 +45,20 @@ class CovertChannel{
     
     // Methods
     public void run() throws Exception{
-        
-        // // create 2 subjects
+        // create 2 subjects
         sys.createSubject("Lyle", SecurityLevel.LOW);
         sys.createSubject("Hal", SecurityLevel.HIGH);
         
-        // sys.runSystem();
-        
-        for(int i = 0; i < 3; ++i){
-            String inString = "RUN HAL";
-            // String inString = "CREATE HAL OBJ";
-            // String inString = "CREATE LYLE OBJ";
-            // String inString = "WRITE LYLE OBJ 1";
-            // String inString = "READ LYLE OBJ";
-            // String inString = "DESTROY LYLE OBJ";
-            // String inString = "RUN LYLE";
-            if(logging) log.println(inString);
-            if(DEBUG) fout.println(inString);
-            InstructionObject instruction = new InstructionObject(inString);
+        for(String str : instructionSet){
+            // if(DEBUG) System.out.println("str: " + str);
+            if(logging) log.println(str);
+            InstructionObject instruction = new InstructionObject(str);
             sys.monitor.execute(instruction);
+            // fout.println(str);
             sys.printState();
         }
         
         log.close();
         fout.close();
     }
-    
 }

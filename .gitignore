@@ -14,3 +14,4 @@ a.out
 cscope*
 
 # repo specific
+*.out
