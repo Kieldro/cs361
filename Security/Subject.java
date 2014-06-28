@@ -1,8 +1,12 @@
 package Security;
 
+import java.io.*;
+
 public class Subject {
     public String name;
     public int temp = 0;
+    
+    private ByteArrayInputStream byteStream = new ByteArrayInputStream(new byte[8]);
     
     public Subject(String name){
         this.name = name;

@@ -1,8 +1,10 @@
 prog_file = keo_program2.zip
+file = inFile
 
 all: compile
 	clear
-	java -ea Security.CovertChannel v FILENAME
+	java -ea Security.CovertChannel v $(file)
+	# diff $(file) $(file).out 
 	
 a1:	
 	clear
