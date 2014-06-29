@@ -24,8 +24,8 @@ class CovertChannel{
         "RUN LYLE"};
     
     public static void main (String[] args) throws Exception{
-        if(DEBUG) System.out.println("args: " + args[0]);
-        if(DEBUG) System.out.println("length: " + args.length);
+        // if(DEBUG) System.out.println("args: " + args[0]);
+        // if(DEBUG) System.out.println("length: " + args.length);
         if(args.length == 2 && args[0].equals("v")){
             inFile = args[1];
             logging = true;
@@ -52,19 +52,30 @@ class CovertChannel{
         sys.createSubject("Lyle", SecurityLevel.LOW);
         sys.createSubject("Hal", SecurityLevel.HIGH);
         
+        double nBytes = din.available();
+        double startTime = System.nanoTime();
+
+        
         while(din.available() > 0){
             byte B = din.readByte();
-            if(DEBUG) System.out.println("B read: 0x" + Integer.toHexString(B));
+            // if(DEBUG) System.out.println("B read: 0x" + Integer.toHexString(B));
             // if(DEBUG) System.out.println("B read: " + B);
             for(int i = 0; i < 8; ++i){
                 byte bit = (byte)(B >> i & 0x01);
-                if(DEBUG) System.out.println("bit read: 0x" + Integer.toHexString(bit));
+                // if(DEBUG) System.out.println("bit read: 0x" + Integer.toHexString(bit));
                 // if(DEBUG) System.out.println("i: " + i);
                 transmitBit(bit);
             }
         }
         
         log.close();
+        
+        double endTime = System.nanoTime();
+        double duration = (endTime - startTime)/1000/1000/1000;
+        
+        System.out.println("Bytes: " + nBytes + " B");
+        System.out.println("duration: " + duration + " sec");
+        System.out.println("Bandwidth: " + nBytes/duration + " Bytes/sec");
     }
     
     private void transmitBit(byte bit) throws Exception{

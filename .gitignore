@@ -11,6 +11,7 @@
 a.out
 *.sublime-*
 *.gch
+*.log
 cscope*
 
 # repo specific

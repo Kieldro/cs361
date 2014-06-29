@@ -29,20 +29,20 @@ public class Subject {
     public void run() throws Exception{
         assert temp == 0 || temp == 1: "Subject.temp must be 0 or 1.";
         
-        if(DEBUG) System.out.println("mark: " + mark);
+        // if(DEBUG) System.out.println("mark: " + mark);
         
             
         B = B | temp << mark;
         ++mark;
         
         if(mark > 7){
-            if(DEBUG) System.out.println("writing byte: 0x" + Integer.toHexString(B));
+            // if(DEBUG) System.out.println("writing byte: 0x" + Integer.toHexString(B));
             // if(DEBUG) System.out.println("writing byte: " + B);
             dout.write(B);
+            dout.flush();
             B = 0;
             mark = 0;
         }
-        // dout.flush();
     }
     
     public String toString(){

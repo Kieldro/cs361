@@ -3,8 +3,8 @@ file = inFile
 
 all: compile
 	clear
-	java -ea Security.CovertChannel v $(file)
-	# diff $(file) $(file).out 
+	java -ea Security.CovertChannel $(file)
+	diff $(file) $(file).out 
 	
 a1:	
 	clear
@@ -15,7 +15,7 @@ compile: Security/*.java
 	javac  Security/*.java
 	
 clean:
-	rm -rf Security/*.class *.out
+	rm -rf Security/*.class *.out *.log
 	
 turnin: clean
 	zip -r $(prog_file) *
