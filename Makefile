@@ -1,9 +1,11 @@
 prog_file = keo_program2.zip
 file = inFile
+# file = metamorphosis.txt
+# file = TheIlliad.txt
 
 all: compile
 	clear
-	java -ea Security.CovertChannel $(file)
+	java -ea Security.CovertChannel v $(file)
 	diff $(file) $(file).out 
 	
 a1:	

@@ -12,11 +12,11 @@ Assignment 2
 6-26-2014
 Run with : make
 Bandwidth info: 
-average bandwidth: 
-machine type: 
-clock speed: 
 
-e.g.
-Pride and Prejudice    717,571 bytes   600 bits/ms
-Metamorphosis          141,411 bytes   1126 bits/ms
-Test                  45 bytes    40 bits/ms
+The Illiad          1,201,894 bytes      20.6 bits/ms
+Metamorphosis          141419 bytes      153.9 bits/ms
+inFile                  10489 bytes      90.3 bits/ms
+
+average bandwidth: 88.2  bits/ms
+machine type: Linux
+clock speed:  2.67 GHz

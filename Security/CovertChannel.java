@@ -53,6 +53,7 @@ class CovertChannel{
         sys.createSubject("Hal", SecurityLevel.HIGH);
         
         double nBytes = din.available();
+        double nBits = nBytes*8;
         double startTime = System.nanoTime();
 
         
@@ -71,11 +72,11 @@ class CovertChannel{
         log.close();
         
         double endTime = System.nanoTime();
-        double duration = (endTime - startTime)/1000/1000/1000;
+        double duration = (endTime - startTime)/1000/1000;
         
         System.out.println("Bytes: " + nBytes + " B");
-        System.out.println("duration: " + duration + " sec");
-        System.out.println("Bandwidth: " + nBytes/duration + " Bytes/sec");
+        System.out.println("duration: " + duration + " ms");
+        System.out.println("Bandwidth: " + nBits/duration + " bits/ms");
     }
     
     private void transmitBit(byte bit) throws Exception{
