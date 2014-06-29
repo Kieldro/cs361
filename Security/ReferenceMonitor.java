@@ -15,9 +15,9 @@ class ReferenceMonitor {
         this.sys = sys;
     }
     
-    public void execute (InstructionObject instruction){
+    public void execute (InstructionObject instruction) throws Exception{
         if (instruction.op == BAD){
-            if(DEBUG) System.out.println("Bad Instruction");
+            // if(DEBUG) System.out.println("Bad Instruction");
             return;
         }
         
@@ -36,13 +36,14 @@ class ReferenceMonitor {
             // It is given an initial value of 0. If there already exists an object with that name at any level, the operation is a no-op.
             if(!objectManager.exists(obj)){
                 createObject(obj, subjLevel);
-                if(DEBUG) System.out.println("CREATE: " + obj);
-            }else
-                if(DEBUG) System.out.println("CREATE(NO-OP): " + -1);
+                // if(DEBUG) System.out.println("CREATE: " + obj);
+            }else{
+                // if(DEBUG) System.out.println("CREATE(NO-OP): " + -1);
+            }
         break;
         case RUN:
+            // if(DEBUG) System.out.println("RUN: " + subj);
             subj.run();
-            if(DEBUG) System.out.println("RUN: " + subj);
         break;
         case DESTROY:
             // eliminate the designated object from the state, 
@@ -50,22 +51,24 @@ class ReferenceMonitor {
             // Otherwise, the operation is a no-op.
             if (objectManager.exists(obj) && objLevel.dominates(subjLevel)){
                 objectManager.destroy(obj);
-                if(DEBUG) System.out.println("DESTROY: " + obj);
-            }else
-                if(DEBUG) System.out.println("DESTROY(NO-OP): " + -1);
+                // if(DEBUG) System.out.println("DESTROY: " + obj);
+            }else{
+                // if(DEBUG) System.out.println("DESTROY(NO-OP): " + -1);
+            }
         break;
         case READ:
             int result = subjLevel.dominates(objLevel) ? 
                 objectManager.read(obj) : 0;
             subj.temp = result;
-            if(DEBUG) System.out.println("READ: " + result);
+            // if(DEBUG) System.out.println("READ: " + result);
         break;
         case WRITE:
             if (objLevel.dominates(subjLevel)){
                 objectManager.write(obj, val);
-                if(DEBUG) System.out.println("WRITE: " + val);
-            }else
-                if(DEBUG) System.out.println("WRITE(NO-OP): " + val);
+                // if(DEBUG) System.out.println("WRITE: " + val);
+            }else{
+                // if(DEBUG) System.out.println("WRITE(NO-OP): " + val);
+            }
         }
     }
     

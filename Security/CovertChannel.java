@@ -7,10 +7,11 @@ import static Security.SecureSystem.*;
 
 class CovertChannel{
     public static boolean logging = true;
+    public static String inFile;
     
     private static SecureSystem sys = new SecureSystem();
     private static FileInputStream fin;
-    private static PrintWriter fout;
+    private static DataInputStream din;
     private static PrintWriter log;
     private static final String[] instructionSet = 
         {
@@ -23,8 +24,6 @@ class CovertChannel{
         "RUN LYLE"};
     
     public static void main (String[] args) throws Exception{
-        String inFile;
-        
         if(DEBUG) System.out.println("args: " + args[0]);
         if(DEBUG) System.out.println("length: " + args.length);
         if(args.length == 2 && args[0].equals("v")){
@@ -38,35 +37,34 @@ class CovertChannel{
             return;
         }
         
-        fin = new FileInputStream(new File(inFile));
-        fout = new PrintWriter(inFile + ".out");
         log = new PrintWriter("log");
+        FileInputStream fin = new FileInputStream(inFile);
+        din = new DataInputStream(fin);
+         
         CovertChannel covert = new CovertChannel();
         
-        covert.run();
+        covert.runChannel();
     }
     
     // Methods
-    public void run() throws Exception{
+    public void runChannel() throws Exception{
         // create 2 subjects
         sys.createSubject("Lyle", SecurityLevel.LOW);
         sys.createSubject("Hal", SecurityLevel.HIGH);
         
-        // input file byte by byte
-        int nBytes = fin.available();
-        byte[] buffer = new byte[nBytes];
-        fin.read(buffer);
-        
-        for(byte B : buffer){
-            if(DEBUG) System.out.println("B: 0b" + Integer.toBinaryString(B));
+        while(din.available() > 0){
+            byte B = din.readByte();
+            if(DEBUG) System.out.println("B read: 0x" + Integer.toHexString(B));
+            // if(DEBUG) System.out.println("B read: " + B);
             for(int i = 0; i < 8; ++i){
                 byte bit = (byte)(B >> i & 0x01);
-                if(DEBUG) System.out.println("bit: 0x" + Integer.toHexString(bit));
+                if(DEBUG) System.out.println("bit read: 0x" + Integer.toHexString(bit));
+                // if(DEBUG) System.out.println("i: " + i);
                 transmitBit(bit);
             }
-            
         }
         
+        log.close();
     }
     
     private void transmitBit(byte bit) throws Exception{
@@ -78,10 +76,8 @@ class CovertChannel{
             InstructionObject instruction = new InstructionObject(str);
             sys.monitor.execute(instruction);
             // fout.println(str);
-            sys.printState();
+            // sys.printState();
         }
         
-        log.close();
-        fout.close();
     }
 }
