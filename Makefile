@@ -1,12 +1,18 @@
-prog_file = keo_program2.zip
-file = inFile
-# file = metamorphosis.txt
-# file = TheIlliad.txt
+prog_file = keo_program3.zip
+a2file = inFile
+a3file = frequenciesFile
+# a2file = metamorphosis.txt
+# a2file = TheIlliad.txt
 
-all: compile
+all: 
+	clear
+	javac *.java
+	java -ea Encoder $(a3file) 3
+	
+a2: compile
 	clear
 	java -ea Security.CovertChannel v $(file)
-	diff $(file) $(file).out 
+	diff $(file) $(file).out
 	
 a1:	
 	clear
@@ -21,4 +27,4 @@ clean:
 	
 turnin: clean
 	zip -r $(prog_file) *
-	turnin --submit zhaos cs361_prog2 $(prog_file)
+	turnin --submit zhaos cs361_prog3 $(prog_file)

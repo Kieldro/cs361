@@ -10,6 +10,8 @@ RUN with: make a1
 
 Assignment 2
 6-26-2014
+
+
 Run with : make
 Bandwidth info: 
 
@@ -20,3 +22,6 @@ inFile                  10489 bytes      90.3 bits/ms
 average bandwidth: 88.2  bits/ms
 machine type: Linux
 clock speed:  2.67 GHz
+
+Assignment 3
+Calculates the entropy of a language. Implements Huffman algorithm
