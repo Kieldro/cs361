@@ -11,7 +11,6 @@ RUN with: make a1
 Assignment 2
 6-26-2014
 
-
 Run with : make
 Bandwidth info: 
 
@@ -24,4 +23,4 @@ machine type: Linux
 clock speed:  2.67 GHz
 
 Assignment 3
-Calculates the entropy of a language. Implements Huffman algorithm
+Calculates the entropy of a language. Implements Huffman algorithm.
