@@ -139,26 +139,34 @@ class Encoder{
     
     //  encodes each character in testText to a single byte in testText.enc1
     void decode() throws Exception{
-        // FileInputStream fin = new FileInputStream("testText");
-        // DataInputStream din = new DataInputStream(fin);
+        if (DEBUG) System.out.println("Decoding... ");
+        FileInputStream fin = new FileInputStream("testText" + ".enc1");
+        DataInputStream din = new DataInputStream(fin);
         
-        // FileOutputStream fout = new FileOutputStream("testText" + ".enc1");
-        // DataOutputStream dout = new DataOutputStream(fout);
+        FileOutputStream fout = new FileOutputStream("testText" + ".dec1");
+        DataOutputStream dout = new DataOutputStream(fout);
+        HashMap<String, Character> decodings = new HashMap();
         
-        // char c = 0;
-        // if (DEBUG) System.out.println("din.available(): " + din.available());
-        // while(din.available() > 0)
-        // {
-        //     c = (char)din.readByte();
-        //     if (DEBUG) System.out.println("c: " + c);
-        //     String code = HuffmanCode.encodings.get(c);
-        //     if (DEBUG) System.out.println("encodings: " + code);
-        //     byte codeByte = (byte)Integer.parseInt(HuffmanCode.encodings.get(c), 2);
-        //     if (DEBUG) System.out.println("encodings: " + codeByte);
-        //     dout.write(codeByte);
+        for(char c : HuffmanCode.encodings.keySet()){
+            String s = HuffmanCode.encodings.get(c);
+            decodings.put(s, c);
+        }
+        if (DEBUG) System.out.println("entrySet(): " + decodings.entrySet());
+        
+        char c = 0;
+        if (DEBUG) System.out.println("din.available(): " + din.available());
+        while(din.available() > 0)
+        {
+            c = (char)din.readByte();
+            String code = Integer.toBinaryString(c);
+            // if (DEBUG) System.out.println("c: " + c);
+            if (DEBUG) System.out.println("code: " + code);
+            char symbol = decodings.get(code);
+            if (DEBUG) System.out.println("symbol: " + symbol);
+            dout.write(symbol);
             
-        // }
+        }
         
-        // dout.close();
+        dout.close();
     }
 }
