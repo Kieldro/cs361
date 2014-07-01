@@ -24,3 +24,5 @@ clock speed:  2.67 GHz
 
 Assignment 3
 Calculates the entropy of a language. Implements Huffman algorithm.
+
+uses HuffmanCode.java code from http://rosettacode.org/

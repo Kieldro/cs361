@@ -7,7 +7,7 @@ a3file = frequenciesFile
 all: 
 	clear
 	javac *.java
-	java -ea Encoder $(a3file) 3
+	java -ea Encoder $(a3file) 100
 	
 a2: compile
 	clear
