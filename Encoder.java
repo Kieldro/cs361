@@ -55,6 +55,9 @@ class Encoder{
         // generate text
         e.genText();
         
+        e.encode();
+        e.decode();
+        
     }
     
     // h = - Sigma(P * log P)
@@ -106,5 +109,56 @@ class Encoder{
             
         }
         out.close();
+    }
+    
+    //  encodes each character in testText to a single byte in testText.enc1
+    void encode() throws Exception{
+        FileInputStream fin = new FileInputStream("testText");
+        DataInputStream din = new DataInputStream(fin);
+        
+        FileOutputStream fout = new FileOutputStream("testText" + ".enc1");
+        DataOutputStream dout = new DataOutputStream(fout);
+        
+        
+        char c = 0;
+        if (DEBUG) System.out.println("din.available(): " + din.available());
+        while(din.available() > 0)
+        {
+            c = (char)din.readByte();
+            // if (DEBUG) System.out.println("c: " + c);
+            String code = HuffmanCode.encodings.get(c);
+            // if (DEBUG) System.out.println("encodings: " + code);
+            byte codeByte = (byte)Integer.parseInt(HuffmanCode.encodings.get(c), 2);
+            // if (DEBUG) System.out.println("encodings: " + codeByte);
+            dout.write(codeByte);
+            
+        }
+        
+        dout.close();
+    }
+    
+    //  encodes each character in testText to a single byte in testText.enc1
+    void decode() throws Exception{
+        // FileInputStream fin = new FileInputStream("testText");
+        // DataInputStream din = new DataInputStream(fin);
+        
+        // FileOutputStream fout = new FileOutputStream("testText" + ".enc1");
+        // DataOutputStream dout = new DataOutputStream(fout);
+        
+        // char c = 0;
+        // if (DEBUG) System.out.println("din.available(): " + din.available());
+        // while(din.available() > 0)
+        // {
+        //     c = (char)din.readByte();
+        //     if (DEBUG) System.out.println("c: " + c);
+        //     String code = HuffmanCode.encodings.get(c);
+        //     if (DEBUG) System.out.println("encodings: " + code);
+        //     byte codeByte = (byte)Integer.parseInt(HuffmanCode.encodings.get(c), 2);
+        //     if (DEBUG) System.out.println("encodings: " + codeByte);
+        //     dout.write(codeByte);
+            
+        // }
+        
+        // dout.close();
     }
 }
