@@ -55,8 +55,10 @@ class Encoder{
         // generate text
         e.genText();
         
-        e.encode();
+        double efficiency = e.encode();
         e.decode();
+        double percentDiff = 100 * efficiency / h - 100;
+        System.out.printf("percent compared to entropy = %f%%\n", percentDiff);
         
     }
     
@@ -112,29 +114,36 @@ class Encoder{
     }
     
     //  encodes each character in testText to a single byte in testText.enc1
-    void encode() throws Exception{
+    double encode() throws Exception{
         FileInputStream fin = new FileInputStream("testText");
         DataInputStream din = new DataInputStream(fin);
         
         FileOutputStream fout = new FileOutputStream("testText" + ".enc1");
         DataOutputStream dout = new DataOutputStream(fout);
+        double efficiency = 0;
+        double nSymbols = din.available();
+        double totalBits = 0;
         
         
         char c = 0;
-        if (DEBUG) System.out.println("din.available(): " + din.available());
+        if (DEBUG) System.out.println("din.available(): " + nSymbols);
         while(din.available() > 0)
         {
             c = (char)din.readByte();
             // if (DEBUG) System.out.println("c: " + c);
             String code = HuffmanCode.encodings.get(c);
+            totalBits += code.length();
             // if (DEBUG) System.out.println("encodings: " + code);
             byte codeByte = (byte)Integer.parseInt(HuffmanCode.encodings.get(c), 2);
             // if (DEBUG) System.out.println("encodings: " + codeByte);
             dout.write(codeByte);
             
         }
-        
+        efficiency = totalBits / nSymbols;
+        if (DEBUG) System.out.println("efficiency: " + efficiency + " bits/symbol");
         dout.close();
+        
+        return efficiency;
     }
     
     //  encodes each character in testText to a single byte in testText.enc1
@@ -159,10 +168,9 @@ class Encoder{
         {
             c = (char)din.readByte();
             String code = Integer.toBinaryString(c);
-            // if (DEBUG) System.out.println("c: " + c);
-            if (DEBUG) System.out.println("code: " + code);
+            // if (DEBUG) System.out.println("code: " + code);
             char symbol = decodings.get(code);
-            if (DEBUG) System.out.println("symbol: " + symbol);
+            // if (DEBUG) System.out.println("symbol: " + symbol);
             dout.write(symbol);
             
         }
