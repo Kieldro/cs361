@@ -186,12 +186,17 @@ class Encoder{
         
     }
     
-    private ByteArrayInputStream byteStream = new ByteArrayInputStream(new byte[8]);
+    private byte[] B = new byte[4];
+    private int mark = 0;
+    private int place = 0;
     private void writeBits(int bits){
         if(bits == 0){
-            // write 0;
+            B[mark] &= 0x7F >> place;
+            ++place;
+            ++mark;
             return;
         }
+        B[mark] |= 0x80 >> place;
         
         // shift first 1 bit to the MSB
         int places = 31 - (int)log2(bits);

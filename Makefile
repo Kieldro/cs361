@@ -4,7 +4,9 @@ a2file = inFile
 # a2file = TheIlliad.txt
 a3file = frequenciesFile
 
-all: 
+all: a3
+	
+a3:
 	clear
 	javac *.java
 	java -ea Encoder $(a3file) 100
