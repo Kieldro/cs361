@@ -1,80 +1,63 @@
 import java.io.*;
 import java.util.*;
-// import static java.lang.Math.*;
 
 class Encoder{
     static boolean DEBUG = true;
-    static HashMap<Character, Double> probabilities = new HashMap();
-    static LinkedList<Double> list = new LinkedList();
     static int k = 0;
+    static HashMap<String, Double> probabilities = new HashMap();
     
     public static void main (String[] args) throws Exception{
         k = Integer.parseInt(args[1]);
         Scanner sc = new Scanner(new File(args[0]));
-        
         if (DEBUG) System.out.println("k: " + k);
         
-        
-        // input
-        int sum = 0;
-        int[] charFreqs = new int[256];
+        // input frequencies
+        int sum = 0, i = 0;
+        HashMap<String, Integer> charFreqs = new HashMap();
         while( sc.hasNext() ){
-            double x = sc.nextInt();
-            list.add(x);
-            sum += x;
+            int x = sc.nextInt();
             if (DEBUG) System.out.println("x: " + x);
+            charFreqs.put(String.valueOf((char)('a' + i++)), x);
+            sum += x;
         }
         if (DEBUG) System.out.println("sum: " + sum);
         
-        int i = 0;
-        for(ListIterator<Double> it = list.listIterator(); it.hasNext(); ){
-            double x = it.next();
-            charFreqs[i++ + 'a'] = (int)x;
-            it.set(x / (double)sum);
+        // calculate probabilities
+        for(String key : charFreqs.keySet()){
+            if (DEBUG) System.out.println("key: " + key);
+            double x = charFreqs.get(key);
+            probabilities.put(key, x / (double)sum);
+            
         }
-        if (DEBUG) System.out.println("list: " + list);
-        
-        
-        // for(int i = 0; i < 10; ++i){
-        //  System.out.println("random: " + gen.nextInt());
-        // }
-        
-        Encoder e = new Encoder();
+        if (DEBUG) System.out.println("probabilities: " + probabilities);
         
         // Entropy
+        Encoder e = new Encoder();
         double h = e.computeEntropy();
         if (DEBUG) System.out.println("h: " + h + " bits");
         
         // Huffman Algorithm
         HuffmanTree tree = HuffmanCode.buildTree(charFreqs);
+        HuffmanCode.printCodes(tree);
  
-        // print out results
-        System.out.println("SYMBOL\tWEIGHT\tHUFFMAN CODE");
-        HuffmanCode.printCodes(tree, new StringBuffer());
-        
-        // generate text
-        e.genText();
-        
+        // Encode and decode
+        e.genText();        // generate text
         double efficiency = e.encode();
         e.decode();
         double percentDiff = 100 * efficiency / h - 100;
         System.out.printf("percent compared to entropy = %f%%\n", percentDiff);
         
+        // 2 symbol alphabet
+        e.nSymbolAlpha(2);
     }
     
     // h = - Sigma(P * log P)
     double computeEntropy(){
     	double h = 0;
-    	probabilities.put('a', .40);
-    	probabilities.put('b', .30);
-    	probabilities.put('c', .20);
-    	probabilities.put('d', .10);
     	
-        for(Double prob : list){
+        for(Double prob : probabilities.values()){
     	   h -= prob * Math.log(prob) / Math.log(2);
         }
-    	
-    	// h *= -1;
         
     	return h;
     }
@@ -96,14 +79,14 @@ class Encoder{
             mark = 0;
             // if (DEBUG) System.out.println("rand: " + rand);
             
-            for(int j = 0; j < list.size(); ++j){
-                double p = list.get(j);
+            for(String key : probabilities.keySet()){
+                double p = probabilities.get(key);
                 int pMark = (int)(p * range);
                 mark += pMark;
                 // if (DEBUG) System.out.println("p: " + p);
                 if(rand <= mark){
-                // if (DEBUG) System.out.println("BOOYA: " + p);
-                    out.print((char)('a' + j));
+                    // if (DEBUG) System.out.println("key: " + key);
+                    out.print(key);
                     break;
                 }
                 
@@ -121,15 +104,15 @@ class Encoder{
         FileOutputStream fout = new FileOutputStream("testText" + ".enc1");
         DataOutputStream dout = new DataOutputStream(fout);
         double efficiency = 0;
-        double nSymbols = din.available();
         double totalBits = 0;
+        double nSymbols = din.available();
         
         
-        char c = 0;
+        String c;
         if (DEBUG) System.out.println("din.available(): " + nSymbols);
         while(din.available() > 0)
         {
-            c = (char)din.readByte();
+            c = String.valueOf((char)din.readByte());
             // if (DEBUG) System.out.println("c: " + c);
             String code = HuffmanCode.encodings.get(c);
             totalBits += code.length();
@@ -152,13 +135,13 @@ class Encoder{
         FileInputStream fin = new FileInputStream("testText" + ".enc1");
         DataInputStream din = new DataInputStream(fin);
         
-        FileOutputStream fout = new FileOutputStream("testText" + ".dec1");
-        DataOutputStream dout = new DataOutputStream(fout);
-        HashMap<String, Character> decodings = new HashMap();
+        PrintWriter out = new PrintWriter("testText" + ".dec1");
+        HashMap<String, String> decodings = new HashMap();
         
-        for(char c : HuffmanCode.encodings.keySet()){
-            String s = HuffmanCode.encodings.get(c);
-            decodings.put(s, c);
+        // generate code to string map
+        for(String key : HuffmanCode.encodings.keySet()){
+            String s = HuffmanCode.encodings.get(key);
+            decodings.put(s, key);
         }
         if (DEBUG) System.out.println("entrySet(): " + decodings.entrySet());
         
@@ -169,12 +152,19 @@ class Encoder{
             c = (char)din.readByte();
             String code = Integer.toBinaryString(c);
             // if (DEBUG) System.out.println("code: " + code);
-            char symbol = decodings.get(code);
+            String symbol = decodings.get(code);
             // if (DEBUG) System.out.println("symbol: " + symbol);
-            dout.write(symbol);
+            out.print(symbol);
             
         }
         
-        dout.close();
+        out.close();
+    }
+    
+    void nSymbolAlpha(int n){
+        
+        
+        
+        
     }
 }
