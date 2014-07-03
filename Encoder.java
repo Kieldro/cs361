@@ -194,7 +194,7 @@ class Encoder{
         }
         
         // shift first 1 bit to the MSB
-        int places = (int)Math.ceil(log2(Math.pow(2, 31)/log2(bits)));
+        int places = 31 - (int)log2(bits);
         bits <<= places;
         if (DEBUG) System.out.printf("places: %d\n", places);
         if (DEBUG) System.out.printf("bits: 0x%H\n", bits);
