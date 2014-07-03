@@ -107,7 +107,6 @@ class Encoder{
         double totalBits = 0;
         double nSymbols = din.available();
         
-        
         String c;
         if (DEBUG) System.out.println("din.available(): " + nSymbols);
         while(din.available() > 0)
@@ -162,6 +161,16 @@ class Encoder{
     }
     
     void nSymbolAlpha(int n){
+        HashMap<String, Double> probN = new HashMap();
+        
+        for(String c1 : probabilities.keySet())
+            for(String c2 : probabilities.keySet()){
+                double p1 = probabilities.get(c1);
+                double p2 = probabilities.get(c2);
+                probN.put(c1 + p1, p1 * p2);
+                
+            }
+        if (DEBUG) System.out.println("probN: " + probN);
         
         
         
