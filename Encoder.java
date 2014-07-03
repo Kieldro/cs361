@@ -167,10 +167,10 @@ class Encoder{
             for(String c2 : probabilities.keySet()){
                 double p1 = probabilities.get(c1);
                 double p2 = probabilities.get(c2);
-                probN.put(c1 + p1, p1 * p2);
+                probN.put(c1 + c2, p1 * p2);
                 
             }
-        if (DEBUG) System.out.println("probN: " + probN);
+        // if (DEBUG) System.out.println("probN: " + probN);
         
         
         
