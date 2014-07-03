@@ -173,6 +173,9 @@ class Encoder{
         // if (DEBUG) System.out.println("probN: " + probN);
         
         
+        HuffmanTree tree = HuffmanCode.buildTree(probN, 0);
+        HuffmanCode.printCodes(tree);
+        
         
         
     }

@@ -12,7 +12,9 @@ public class Foo{
         map.put("x", 3);
         map.put("y", 5);
         
-        System.out.printf("x = %d\n", map.get("w"));
+        double x = 0.4;
+        
+        System.out.printf("x = %d\n", (int)x);
     }
 }
 

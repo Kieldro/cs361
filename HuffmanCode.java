@@ -33,6 +33,17 @@ public class HuffmanCode {
     public static HashMap<String, String> encodings = new HashMap();
     
     // input is an array of frequencies, indexed by character code
+    public static HuffmanTree buildTree(HashMap<String, Double> strProbs, int dummy) {
+        HashMap<String, Integer> charFreqs = new HashMap();
+        
+        for(String key : strProbs.keySet()){
+            double p = strProbs.get(key);
+            charFreqs.put(key, (int)(1000 * p));
+        }
+        
+        return buildTree(charFreqs);
+    }
+    
     public static HuffmanTree buildTree(HashMap<String, Integer> charFreqs) {
         PriorityQueue<HuffmanTree> trees = new PriorityQueue<HuffmanTree>();
         // initially, we have a forest of leaves
