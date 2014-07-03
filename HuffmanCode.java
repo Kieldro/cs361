@@ -38,7 +38,7 @@ public class HuffmanCode {
         
         for(String key : strProbs.keySet()){
             double p = strProbs.get(key);
-            charFreqs.put(key, (int)(1000 * p));
+            charFreqs.put(key, (int)(1000 * 1000 * p));
         }
         
         return buildTree(charFreqs);

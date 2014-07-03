@@ -12,8 +12,6 @@ public class Subject {
     private static FileOutputStream fout;
     private static DataOutputStream dout;
     
-    private ByteArrayInputStream byteStream = new ByteArrayInputStream(new byte[8]);
-    
     public Subject(String name){
         this.name = name;
         try{

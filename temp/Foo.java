@@ -14,7 +14,9 @@ public class Foo{
         
         double x = 0.4;
         
-        System.out.printf("x = %d\n", (int)x);
+        int b = 0x80000000 >> 0;
+        
+        System.out.printf("x = %f\n", Math.log(3)/Math.log(2));
     }
 }
 
