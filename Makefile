@@ -9,7 +9,7 @@ all: a3
 a3:
 	clear
 	javac *.java
-	java -ea Encoder $(a3file) 100
+	java -ea Encoder $(a3file) 8
 	diff testText testText.dec1
 	# diff testText testText.dec2
 	
@@ -31,8 +31,8 @@ compile: Security/*.java
 	javac  Security/*.java
 	
 clean:
-	rm -rf Security/*.class *.out *.log
+	rm -rf Security/*.class *.out *.log *.enc* *.dec*
 	
-turnin: clean
+turnin: 
 	zip -r $(prog_file) *
 	turnin --submit zhaos cs361_prog3 $(prog_file)
