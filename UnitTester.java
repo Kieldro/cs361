@@ -22,12 +22,15 @@ class UnitTester{
         // e.binaryOut("01111111");
         // e.binaryOut("10111111");
         
-        e.binaryOut("01011000");       //  'X'/0x58
+        // e.binaryOut("01011000");       //  'X'/0x58
         // e.binaryOut("01011001");       //  'Y'
         // e.binaryOut("10101011");       // 0xAB
         // e.binaryOut("11001101");       // 0xCD
         // e.binaryOut("00000000");
-        // e.binaryOut("10001001");
+        e.binaryOut("11011110");
+        e.binaryOut("11011110");
+        e.binaryOut("11011110");
+        e.binaryOut("11011110");
         // e.binaryOut("10001001");
         
         e.flush();

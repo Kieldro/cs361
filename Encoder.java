@@ -199,7 +199,7 @@ class Encoder{
     }
     
     static HashMap<String, String> decodings = new HashMap();
-    //  encodes each character in testText to a single byte in testText.enc1
+    // encodes each character in testText to a single byte in testText.enc1
     void decode(int jSymbols) throws Exception{
         if (DEBUG) System.out.println("Decoding... ");
         
@@ -210,26 +210,29 @@ class Encoder{
         }
         if (DEBUG) System.out.println("entrySet(): " + decodings.entrySet());
         
-        // if (DEBUG) System.out.println("din.available(): " + din.available());
-        
-        byte B = din.readByte();
         String codeStr = "";
+        mark = 0;
         int i = 0;
-        for(i = 0; i < 8; ++i)
-        {
-            byte bit = (byte)(B & 0x80 >> i);
-            
-            codeStr += bit != 0 ? "1" : "0";
-            if (DEBUG) System.out.println("codeStr: " + codeStr);
-            String symbol = decodings.get(codeStr);
-            if (DEBUG) System.out.println("symbol: " + symbol);
-            if(symbol != null){
-               pout.print(symbol);
-               
-            }
-                
-        }
         
+        // if (DEBUG) System.out.println("din.available(): " + din.available());
+        while(din.available() > 0){
+            byte B = din.readByte();
+            for(i = 0; i < 8; ++i)
+            {
+                byte bit = (byte)(B & 0x80 >> i);
+                
+                codeStr += bit != 0 ? "1" : "0";
+                assert codeStr.length() < 16 : "Code too long/ not found: " + codeStr;
+                if (DEBUG) System.out.println("codeStr: " + codeStr);
+                String symbol = decodings.get(codeStr);
+                if(symbol != null){
+                    if (DEBUG) System.out.println("symbol: " + symbol);
+                    pout.print(symbol);
+                    codeStr = "";
+                }
+            }
+            // ++mark;
+        }
         pout.close();
     }
         
