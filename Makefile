@@ -4,12 +4,20 @@ a2file = inFile
 # a2file = TheIlliad.txt
 a3file = frequenciesFile
 
-all: a3
+all: a3test
+	
+a3test:
+	clear
+	javac *.java
+	java -ea UnitTester
+	hexdump binaryfile.enc
+	# diff binaryfile binaryfile.dec
 	
 a3:
 	clear
 	javac *.java
 	java -ea Encoder $(a3file) 8
+	hd testText.enc1
 	diff testText testText.dec1
 	# diff testText testText.dec2
 	

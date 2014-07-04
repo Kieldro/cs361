@@ -5,12 +5,23 @@ class Encoder{
     static boolean DEBUG = true;
     static int k = 0;
     static HashMap<String, Double> probabilities = new HashMap();
-    private File outFile;
-    private FileOutputStream fout;
+    
+    // IO variables
+    static final String generatedText = "testText";
+    
+    static Scanner sc;
+    static DataInputStream din;
+    static DataOutputStream dout;
+    static PrintWriter pout;
+    
+    static File outFile;
+    static FileOutputStream fout;
     
     public static void main (String[] args) throws Exception{
         k = Integer.parseInt(args[1]);
-        Scanner sc = new Scanner(new File(args[0]));
+        String freqFile = args[0];
+        if (DEBUG) System.out.println("freqFile: " + freqFile);
+        sc = new Scanner(new File(freqFile));
         // if (DEBUG) System.out.println("k: " + k);
         
         // input frequencies
@@ -25,7 +36,7 @@ class Encoder{
         // if (DEBUG) System.out.println("sum: " + sum);
         
         // calculate probabilities
-        for(String key : charFreqs.keySet()){
+        for(String key : charFreqs.keySet() ){
             // if (DEBUG) System.out.println("key: " + key);
             double x = charFreqs.get(key);
             probabilities.put(key, x / (double)sum);
@@ -41,11 +52,25 @@ class Encoder{
         // Huffman Algorithm
         HuffmanTree tree = HuffmanCode.buildTree(charFreqs);
         HuffmanCode.printCodes(tree);
- 
-        // Encode and decode
+        
+        
+        // Generate text
+        pout = new PrintWriter(generatedText);
         e.genText();        // generate text
-        double efficiency = e.encode("testText.enc1", 1);
-        e.decode("testText.dec1", 1);
+        
+        // Encode
+        FileInputStream fin = new FileInputStream(generatedText);
+        din = new DataInputStream(fin);
+        FileOutputStream fout = new FileOutputStream(generatedText + ".enc1");
+        dout = new DataOutputStream(fout);
+        double efficiency = e.encode(1);
+        
+        // Decode
+        fin = new FileInputStream(generatedText + ".enc1");
+        din = new DataInputStream(fin);
+        pout = new PrintWriter(generatedText + ".dec1");
+        e.decode(1);
+        
         double percentDiff = 100 * efficiency / h - 100;
         System.out.printf("1 symbol encoding compared to entropy = %f%%\n", percentDiff);
         
@@ -69,7 +94,7 @@ class Encoder{
     	return h;
     }
     
-    private double log2(double x){ return Math.log(x) / Math.log(2); }
+    protected double log2(double x){ return Math.log(x) / Math.log(2); }
     
     void genText(){
         Random gen = new Random();
@@ -77,12 +102,6 @@ class Encoder{
         int rand = -1;
         int mark = -1;
         final int range = 1000;
-        PrintWriter out;
-        try{
-            out = new PrintWriter("testText");
-        }catch(Exception e){
-            return;
-        }
         
         for (int i = 0; i < k; ++i){
             rand = Math.abs(gen.nextInt() % range);
@@ -96,21 +115,16 @@ class Encoder{
                 // if (DEBUG) System.out.println("p: " + p);
                 if(rand <= mark){
                     // if (DEBUG) System.out.println("key: " + key);
-                    out.print(key);
+                    pout.print(key);
                     break;
                 }
             }
         }
-        out.close();
+        pout.close();
     }
     
-    //  encodes each character in testText to a single byte in testText.enc1
-    double encode(String file, int jSymbols) throws Exception{
-        FileInputStream fin = new FileInputStream("testText");
-        DataInputStream din = new DataInputStream(fin);
-        
-        fout = new FileOutputStream(file);
-        DataOutputStream dout = new DataOutputStream(fout);
+    //  encodes each character in testText into bits in testText.enc1
+    double encode(int jSymbols) throws Exception{
         double efficiency = 0;
         double totalBits = 0;
         double nSymbols = din.available();
@@ -130,53 +144,94 @@ class Encoder{
             // if (DEBUG) System.out.println("encodings: " + code);
             int codeByte = Integer.parseInt(HuffmanCode.encodings.get(str), 2);
             String codeStr = HuffmanCode.encodings.get(str);
-            if (DEBUG) System.out.printf("codeByte: 0x%X\n", codeByte);
-            dout.write((byte)codeByte);
+            // if (DEBUG) System.out.printf("\ncodeStr: 0b%s\n", codeStr);
+            // if (DEBUG) System.out.printf("codeByte: 0x%X\n", codeByte);
+            // dout.write((byte)codeByte);         // seperate bytes
             binaryOut(codeStr);
-            
         }
         efficiency = totalBits / nSymbols;
         if (DEBUG) System.out.println("efficiency: " + efficiency + " bits/symbol");
+        flush();
         dout.close();
-        // flush();
         
         return efficiency;
     }
     
-    //  encodes each character in testText to a single byte in testText.enc1
-    void decode(String file, int jSymbols) throws Exception{
-        if (DEBUG) System.out.println("Decoding... ");
-        FileInputStream fin = new FileInputStream("testText" + ".enc1");
-        DataInputStream din = new DataInputStream(fin);
+    protected void binaryOut(String codeStr) throws Exception{
+        for(char c : codeStr.toCharArray()){
+            byte bit = (byte)(c - '0');
+            // if (DEBUG) System.out.printf("bit: %d\n", bit);
+            writeBit(bit);
+            
+        }
+    }
+    
+    protected final int capOfBuff = 4;
+    protected byte[] buffer = new byte[capOfBuff];
+    protected int mark = 0;
+    protected int positionInByte = 7;
         
-        PrintWriter out = new PrintWriter(file);
-        HashMap<String, String> decodings = new HashMap();
+    public void writeBit(byte bit) throws Exception{    
+        if(positionInByte == 7){
+            buffer[mark] = 0;
+            assert buffer[mark] == 0 : 
+            String.format("buffer[mark] must be 0: 0x%02X", buffer[mark]);       // initialized to zero
+        }
+        
+        // if (DEBUG) System.out.printf("positionInByte: %d\n", positionInByte);
+        // if (DEBUG) System.out.printf("mark: %d\n", mark);
+        buffer[mark] |= bit << positionInByte;      // place bit in position
+            // Integer.toBinaryString(buffer[mark]));
+        --positionInByte;   // next bit positon in byte
+        if(positionInByte <= -1){
+            if (DEBUG) System.out.printf("buffer[mark]: 0x%02X\n", buffer[mark]);
+            // if (DEBUG) System.out.printf("buffer[mark]: 0b%s\n", 
+            ++mark;     // next byte in buffer
+            positionInByte = 7;
+        }
+        
+        if(mark >= capOfBuff)       // full buffer
+            flush();
+    }
+    
+    static HashMap<String, String> decodings = new HashMap();
+    //  encodes each character in testText to a single byte in testText.enc1
+    void decode(int jSymbols) throws Exception{
+        if (DEBUG) System.out.println("Decoding... ");
         
         // generate code to string map
         for(String key : HuffmanCode.encodings.keySet()){
             String s = HuffmanCode.encodings.get(key);
             decodings.put(s, key);
         }
-        // if (DEBUG) System.out.println("entrySet(): " + decodings.entrySet());
+        if (DEBUG) System.out.println("entrySet(): " + decodings.entrySet());
         
-        char c = 0;
         // if (DEBUG) System.out.println("din.available(): " + din.available());
-        while(din.available() > 0)
+        
+        byte B = din.readByte();
+        String codeStr = "";
+        int i = 0;
+        for(i = 0; i < 8; ++i)
         {
-            c = (char)din.readByte();
-            String code = Integer.toBinaryString(c);
-            // if (DEBUG) System.out.println("code: " + code);
-            String symbol = decodings.get(code);
-            // if (DEBUG) System.out.println("symbol: " + symbol);
-            out.print(symbol);
+            byte bit = (byte)(B & 0x80 >> i);
+            
+            codeStr += bit != 0 ? "1" : "0";
+            if (DEBUG) System.out.println("codeStr: " + codeStr);
+            String symbol = decodings.get(codeStr);
+            if (DEBUG) System.out.println("symbol: " + symbol);
+            if(symbol != null){
+               pout.print(symbol);
+               
+            }
+                
         }
         
-        out.close();
+        pout.close();
     }
-    
+        
     void nSymbolAlpha(int n) throws Exception{
         HashMap<String, Double> probN = new HashMap();
-        outFile = new File("testText.dec2");
+        outFile = new File(generatedText + ".dec2");
         fout = new FileOutputStream(outFile);
         
         for(String c1 : probabilities.keySet())
@@ -191,47 +246,18 @@ class Encoder{
         HuffmanTree tree = HuffmanCode.buildTree(probN, 0);
         HuffmanCode.printCodes(tree);
         
-        encode("testText.dec2", 2);
+        encode(2);
         
         // flush();
     }
     
-    private void binaryOut(String codeStr) throws Exception{
-        
-        for(char c : codeStr.toCharArray()){
-            byte x = (byte)(c - '0');
-            if (DEBUG) System.out.printf("x: %d\n", x);
-            writeBit(x);
-            
-        }
-        
-        
-    }
-    
-    private final int capOfBuff = 4;
-    private byte[] buffer = new byte[capOfBuff];
-    private int mark = 0;
-    private int positionInByte = 0;
-        
-    private void writeBit(byte bit) throws Exception{    
-        if(positionInByte == 0)
-            assert buffer[mark] == 0;       // initialized to zero
-        
-        buffer[mark] |= bit << positionInByte;      // place bit in position
-        if (DEBUG) System.out.printf("buffer[mark]: 0x%02X\n", buffer[mark]);
-        ++positionInByte;   // next bit positon in byte
-        if(positionInByte == 8){
-            ++mark;     // next byte in buffer
-            positionInByte = 0;
-        }
-        
-        if(mark == capOfBuff)       // full buffer
-            flush();
-    }
-    
     // writes buffer to file and resets counters
-    private void flush() throws Exception{
-        fout.write(buffer);
+    protected void flush() throws Exception{
+        if (DEBUG) System.out.println("flushing: ");
+        if(mark == 0 && positionInByte == 7)        // buffer already flushed
+            return;
+        assert dout != null : "dout is null";
+        dout.write(buffer);
         mark = 0;
         // positionInByte = 0;
     }
