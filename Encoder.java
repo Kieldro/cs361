@@ -23,36 +23,14 @@ class Encoder{
         if (DEBUG) System.out.println("freqFile: " + freqFile);
         sc = new Scanner(new File(freqFile));
         // if (DEBUG) System.out.println("k: " + k);
+        Encoder e = new Encoder();
         
-        // input frequencies
-        int sum = 0, i = 0;
-        HashMap<String, Integer> charFreqs = new HashMap();
-        while( sc.hasNext() ){
-            int x = sc.nextInt();
-            // if (DEBUG) System.out.println("x: " + x);
-            charFreqs.put(String.valueOf((char)('a' + i++)), x);
-            sum += x;
-        }
-        // if (DEBUG) System.out.println("sum: " + sum);
-        
-        // calculate probabilities
-        for(String key : charFreqs.keySet() ){
-            // if (DEBUG) System.out.println("key: " + key);
-            double x = charFreqs.get(key);
-            probabilities.put(key, x / (double)sum);
-            
-        }
-        // if (DEBUG) System.out.println("probabilities: " + probabilities);
+        // generate codes
+        e.genCodes();
         
         // Entropy
-        Encoder e = new Encoder();
         double h = e.computeEntropy();
         if (DEBUG) System.out.println("h: " + h + " bits");
-        
-        // Huffman Algorithm
-        HuffmanTree tree = HuffmanCode.buildTree(charFreqs);
-        HuffmanCode.printCodes(tree);
-        
         
         // Generate text
         pout = new PrintWriter(generatedText);
@@ -81,6 +59,32 @@ class Encoder{
         // e.decode("testText.dec2", 2);
         // percentDiff = 100 * efficiency / h - 100;
         // System.out.printf("2 symbol encoding compared to entropy = %f%%\n", percentDiff);
+    }
+    
+    void genCodes(){
+        // input frequencies
+        int sum = 0, i = 0;
+        HashMap<String, Integer> charFreqs = new HashMap();
+        while( sc.hasNext() ){
+            int x = sc.nextInt();
+            // if (DEBUG) System.out.println("x: " + x);
+            charFreqs.put(String.valueOf((char)('a' + i++)), x);
+            sum += x;
+        }
+        // if (DEBUG) System.out.println("sum: " + sum);
+        
+        // calculate probabilities
+        for(String key : charFreqs.keySet() ){
+            // if (DEBUG) System.out.println("key: " + key);
+            double x = charFreqs.get(key);
+            probabilities.put(key, x / (double)sum);
+            
+        }
+        // if (DEBUG) System.out.println("probabilities: " + probabilities);
+        
+        // Huffman Algorithm
+        HuffmanTree tree = HuffmanCode.buildTree(charFreqs);
+        HuffmanCode.printCodes(tree);
     }
     
     // h = - Sigma(P * log P)

@@ -32,6 +32,10 @@ class UnitTester{
         
         e.flush();
         
+        e.sc = new Scanner(new File("frequenciesFile"));
+        e.genCodes();
+        
+        
         FileInputStream fin = new FileInputStream(inFile + ".enc");
         e.din = new DataInputStream(fin);
         e.pout = new PrintWriter(inFile + ".dec");
