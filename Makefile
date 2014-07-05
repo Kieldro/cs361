@@ -51,5 +51,7 @@ turnin:
 	
 verify: 
 	turnin --list zhaos $(assignment)
+	rm -r keo/
 	turnin --verify zhaos $(assignment)
-	cd keo; unzip $(prog_file)
+	cd keo; unzip $(prog_file); make
+	
