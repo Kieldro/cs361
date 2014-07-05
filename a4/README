@@ -33,5 +33,5 @@ Encrypts to and decrypts from pure binary with 1 metabyte of overhead.
 
 Assignment 4
 7-3-2014
-AES-256
+Advanced Encryption Standard (AES-256)
 timing: x MB/s

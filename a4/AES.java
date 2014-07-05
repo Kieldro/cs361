@@ -39,12 +39,22 @@ class AES{
             System.out.printf("plainFile: %s not found\n", plainFile);
             return;
         }
-        char c = (char)fin.read();
-        c = (char)fin.read();
-        c = (char)fin.read();
-        c = (char)fin.read();
-        if(DEBUG) System.out.printf("c = %s\n", c);
-        // System.out.println("Plaintext: " + fin.next());
+        // Scanner sc = new Scanner(plainFile);
+        // sc.next
+        byte[] B = new byte[2];
+        for (int j = 0; j < 4; ++j) {
+            for (int i = 0; i < 4; ++i) {
+                fin.read(B);
+                String hexStr = String.valueOf((char)B[0]);
+                hexStr += String.valueOf((char)B[1]);
+                if(DEBUG) System.out.printf("hexStr = %s\n", hexStr);
+                state[i][j] = (byte)Integer.parseInt(hexStr, 16);
+                if(DEBUG) System.out.printf("state[i][j] = %X\n", state[i][j]);
+            }
+        }
+        // if(DEBUG) System.out.printf("state = %s\n", state[i][j]);
+        System.out.println("state: " + state);
+        printMatrix(state);
         
         
         
@@ -84,6 +94,21 @@ class AES{
         
         System.out.println("Ciphertext: ");
         
+        
+    }
+    
+    static void printMatrix(byte[][] A){
+        
+        
+        for (int i = 0; i < 4; ++i) {
+            System.out.printf("[ ");
+            
+            for (int j = 0; j < 4; ++j) {
+                
+                System.out.printf("%02X ", A[i][j]);
+            }
+            System.out.printf("]\n");
+        }
         
     }
 }
