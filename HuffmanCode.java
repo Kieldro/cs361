@@ -45,6 +45,7 @@ public class HuffmanCode {
     }
     
     public static HuffmanTree buildTree(HashMap<String, Integer> charFreqs) {
+        encodings = new HashMap();
         PriorityQueue<HuffmanTree> trees = new PriorityQueue<HuffmanTree>();
         // initially, we have a forest of leaves
         // one for each non-empty character

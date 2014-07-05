@@ -16,10 +16,11 @@ a3test:
 a3:
 	clear
 	javac *.java
-	java -ea Encoder $(a3file) 100
+	java -ea Encoder $(a3file) 8
 	# hd binaryfile.enc1
 	diff testText testText.dec1
-	# diff testText testText.dec2
+	diff testText testText.dec2
+	cat testText.dec2
 	
 a2: compile
 	clear

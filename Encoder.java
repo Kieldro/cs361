@@ -30,12 +30,14 @@ class Encoder{
         
         // Entropy
         double h = e.computeEntropy();
-        if (DEBUG) System.out.println("h: " + h + " bits");
+        System.out.println("h: " + h + " bits");
         
         // Generate text
         pout = new PrintWriter(generatedText);
         e.genText();        // generate text
         
+        // 1 symbol alphabet
+        System.out.println("1 symbol alphabet");
         // Encode
         // if(DEBUG) generatedText = "binaryfile";
         FileInputStream fin = new FileInputStream(generatedText);
@@ -54,10 +56,8 @@ class Encoder{
         System.out.printf("1 symbol encoding compared to entropy = %f%%\n", percentDiff);
         
         // 2 symbol alphabet
-        // e.nSymbolAlpha(2);
-        
-        // efficiency = e.encode("testText.enc2", 2);
-        // e.decode("testText.dec2", 2);
+        System.out.println("\n2 symbol alphabet");
+        e.nSymbolAlpha(2);
         // percentDiff = 100 * efficiency / h - 100;
         // System.out.printf("2 symbol encoding compared to entropy = %f%%\n", percentDiff);
     }
@@ -134,7 +134,9 @@ class Encoder{
         double efficiency = 0;
         double totalBits = 0;
         double nSymbols = din.available();
-        
+        mark = 0;
+        positionInByte = 7;
+    
         String str;
         // if (DEBUG) System.out.println("din.available(): " + nSymbols);
         while(din.available() >= jSymbols)
@@ -142,21 +144,20 @@ class Encoder{
             str = "";
             for(int i = 0; i < jSymbols; ++i){
                 String c = String.valueOf((char)din.readByte());
+                // if (DEBUG) System.out.println("c: " + c);
                 str += c;
             }
-            // if (DEBUG) System.out.println("c: " + c);
+            if (DEBUG) System.out.println("str: " + str);
             String code = HuffmanCode.encodings.get(str);
             totalBits += code.length();
             // if (DEBUG) System.out.println("encodings: " + code);
             int codeByte = Integer.parseInt(HuffmanCode.encodings.get(str), 2);
             String codeStr = HuffmanCode.encodings.get(str);
-            // if (DEBUG) System.out.printf("\ncodeStr: 0b%s\n", codeStr);
+            if (DEBUG) System.out.printf("\ncodeStr: 0b%s\n", codeStr);
             // if (DEBUG) System.out.printf("codeByte: 0x%X\n", codeByte);
-            // dout.write((byte)codeByte);         // seperate bytes
             binaryOut(codeStr);
         }
         efficiency = totalBits / nSymbols;
-        if (DEBUG) System.out.println("efficiency: " + efficiency + " bits/symbol");
         
         if(positionInByte != 7){
             flush();
@@ -164,8 +165,9 @@ class Encoder{
         dout.write(positionInByte);        // metabyte: what bits to ignore
         if (DEBUG) System.out.println("positionInByte: " + positionInByte);
         
-        dout.close();
+        // dout.close();
         
+        System.out.println("efficiency: " + efficiency + " bits/symbol");
         return efficiency;
     }
     
@@ -206,17 +208,18 @@ class Encoder{
             flush();
     }
     
-    static HashMap<String, String> decodings = new HashMap();
     // encodes each character in testText to a single byte in testText.enc1
     void decode(int jSymbols) throws Exception{
         if (DEBUG) System.out.println("\nDecoding... ");
+        HashMap<String, String> decodings = new HashMap();
         
         // generate code to string map
+        
         for(String key : HuffmanCode.encodings.keySet()){
             String s = HuffmanCode.encodings.get(key);
             decodings.put(s, key);
         }
-        // if (DEBUG) System.out.println("entrySet(): " + decodings.entrySet());
+       // if (DEBUG) System.out.println("entrySet(): " +  HuffmanCode.encodings.entrySet());
         
         String codeStr = "";
         mark = 0;
@@ -247,8 +250,8 @@ class Encoder{
                 assert codeStr.length() < 16 : "Code too long/ not found: " + codeStr;
                 String symbol = decodings.get(codeStr);
                 if(symbol != null){
-                    // if (DEBUG) System.out.println("codeStr: " + codeStr);
-                    // if (DEBUG) System.out.println("symbol: " + symbol);
+                    if (DEBUG) System.out.println("codeStr: " + codeStr);
+                    if (DEBUG) System.out.println("symbol: " + symbol);
                     pout.print(symbol);
                     codeStr = "";
                 }
@@ -262,8 +265,10 @@ class Encoder{
         
     void nSymbolAlpha(int n) throws Exception{
         HashMap<String, Double> probN = new HashMap();
-        outFile = new File(generatedText + ".dec2");
-        fout = new FileOutputStream(outFile);
+        fout = new FileOutputStream(generatedText + ".enc2");
+        dout = new DataOutputStream(fout);
+        FileInputStream fin = new FileInputStream(generatedText);
+        din = new DataInputStream(fin);
         
         for(String c1 : probabilities.keySet())
             for(String c2 : probabilities.keySet()){
@@ -279,7 +284,11 @@ class Encoder{
         
         encode(2);
         
-        // flush();
+        
+        fin = new FileInputStream(generatedText + ".enc2");
+        din = new DataInputStream(fin);
+        pout = new PrintWriter(generatedText + ".dec2");
+        decode(2);
     }
     
     // writes buffer to file and resets counters
