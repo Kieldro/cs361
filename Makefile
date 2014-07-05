@@ -1,10 +1,20 @@
 prog_file = keo_program3.zip
+assignment = cs361_prog3
 a2file = inFile
 # a2file = metamorphosis.txt
 # a2file = TheIlliad.txt
 a3file = frequenciesFile
 
-all: a3test
+all: a3
+	
+a3:
+	clear
+	javac *.java
+	java -ea Encoder $(a3file) 200
+	# hd binaryfile.enc1
+	diff testText testText.dec1
+	diff testText testText.dec2
+	# cat testText.dec2
 	
 a3test:
 	clear
@@ -12,15 +22,6 @@ a3test:
 	java -ea UnitTester
 	hexdump binaryfile.enc
 	# diff binaryfile binaryfile.dec
-	
-a3:
-	clear
-	javac *.java
-	java -ea Encoder $(a3file) 8
-	# hd binaryfile.enc1
-	diff testText testText.dec1
-	diff testText testText.dec2
-	cat testText.dec2
 	
 a2: compile
 	clear
@@ -43,5 +44,13 @@ clean:
 	rm -rf Security/*.class *.out *.log *.enc* *.dec*
 	
 turnin: 
-	zip -r $(prog_file) *
-	turnin --submit zhaos cs361_prog3 $(prog_file)
+	zip -r $(prog_file) Encoder.java Makefile README HuffmanCode.java \
+		UnitTester.java frequenciesFile 
+	turnin --submit zhaos $(assignment) $(prog_file)
+	turnin --list zhaos $(assignment)
+	
+verify: 
+	turnin --list zhaos $(assignment)
+	turnin --verify zhaos $(assignment)
+	# tar -xfv keo/
+	# cd keo; make

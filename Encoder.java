@@ -5,7 +5,7 @@ class Encoder{
     static boolean DEBUG = true;
     static int k = 0;
     static HashMap<String, Double> probabilities = new HashMap();
-    
+    static double h = 0;
     // IO variables
     static String generatedText = "testText";
     
@@ -29,7 +29,7 @@ class Encoder{
         e.genCodes();
         
         // Entropy
-        double h = e.computeEntropy();
+        h = e.computeEntropy();
         System.out.println("h: " + h + " bits");
         
         // Generate text
@@ -58,8 +58,6 @@ class Encoder{
         // 2 symbol alphabet
         System.out.println("\n2 symbol alphabet");
         e.nSymbolAlpha(2);
-        // percentDiff = 100 * efficiency / h - 100;
-        // System.out.printf("2 symbol encoding compared to entropy = %f%%\n", percentDiff);
     }
     
     void genCodes(){
@@ -103,7 +101,7 @@ class Encoder{
     
     void genText(){
         Random gen = new Random();
-        if (DEBUG) gen = new Random(0);
+        // if (DEBUG) gen = new Random(0);
         int rand = -1;
         int mark = -1;
         final int range = 1000;
@@ -147,13 +145,13 @@ class Encoder{
                 // if (DEBUG) System.out.println("c: " + c);
                 str += c;
             }
-            if (DEBUG) System.out.println("str: " + str);
+            // if (DEBUG) System.out.println("str: " + str);
             String code = HuffmanCode.encodings.get(str);
             totalBits += code.length();
             // if (DEBUG) System.out.println("encodings: " + code);
             int codeByte = Integer.parseInt(HuffmanCode.encodings.get(str), 2);
             String codeStr = HuffmanCode.encodings.get(str);
-            if (DEBUG) System.out.printf("\ncodeStr: 0b%s\n", codeStr);
+            // if (DEBUG) System.out.printf("\ncodeStr: 0b%s\n", codeStr);
             // if (DEBUG) System.out.printf("codeByte: 0x%X\n", codeByte);
             binaryOut(codeStr);
         }
@@ -163,7 +161,7 @@ class Encoder{
             flush();
         }
         dout.write(positionInByte);        // metabyte: what bits to ignore
-        if (DEBUG) System.out.println("positionInByte: " + positionInByte);
+        // if (DEBUG) System.out.println("positionInByte: " + positionInByte);
         
         // dout.close();
         
@@ -247,11 +245,11 @@ class Encoder{
                 byte bit = (byte)(B & 0x80 >> i);
                 
                 codeStr += bit != 0 ? "1" : "0";
-                assert codeStr.length() < 16 : "Code too long/ not found: " + codeStr;
+                // assert codeStr.length() < 32 : "Code too long/ not found: " + codeStr;
                 String symbol = decodings.get(codeStr);
                 if(symbol != null){
-                    if (DEBUG) System.out.println("codeStr: " + codeStr);
-                    if (DEBUG) System.out.println("symbol: " + symbol);
+                    // if (DEBUG) System.out.println("codeStr: " + codeStr);
+                    // if (DEBUG) System.out.println("symbol: " + symbol);
                     pout.print(symbol);
                     codeStr = "";
                 }
@@ -282,13 +280,17 @@ class Encoder{
         HuffmanTree tree = HuffmanCode.buildTree(probN, 0);
         HuffmanCode.printCodes(tree);
         
-        encode(2);
+        double efficiency = encode(2);
         
         
         fin = new FileInputStream(generatedText + ".enc2");
         din = new DataInputStream(fin);
         pout = new PrintWriter(generatedText + ".dec2");
         decode(2);
+        
+        
+        double percentDiff = 100 * efficiency / h - 100;
+        System.out.printf("2 symbol encoding compared to entropy = %f%%\n", percentDiff);
     }
     
     // writes buffer to file and resets counters
