@@ -7,7 +7,7 @@ class Encoder{
     static HashMap<String, Double> probabilities = new HashMap();
     
     // IO variables
-    static final String generatedText = "testText";
+    static String generatedText = "testText";
     
     static Scanner sc;
     static DataInputStream din;
@@ -37,6 +37,7 @@ class Encoder{
         e.genText();        // generate text
         
         // Encode
+        // if(DEBUG) generatedText = "binaryfile";
         FileInputStream fin = new FileInputStream(generatedText);
         din = new DataInputStream(fin);
         FileOutputStream fout = new FileOutputStream(generatedText + ".enc1");
@@ -129,6 +130,7 @@ class Encoder{
     
     //  encodes each character in testText into bits in testText.enc1
     double encode(int jSymbols) throws Exception{
+        if (DEBUG) System.out.println("Encoding... ");
         double efficiency = 0;
         double totalBits = 0;
         double nSymbols = din.available();
@@ -155,7 +157,13 @@ class Encoder{
         }
         efficiency = totalBits / nSymbols;
         if (DEBUG) System.out.println("efficiency: " + efficiency + " bits/symbol");
-        flush();
+        
+        if(positionInByte != 7){
+            flush();
+        }
+        dout.write(positionInByte);        // metabyte: what bits to ignore
+        if (DEBUG) System.out.println("positionInByte: " + positionInByte);
+        
         dout.close();
         
         return efficiency;
@@ -170,11 +178,11 @@ class Encoder{
         }
     }
     
-    protected final int capOfBuff = 4;
+    protected final int capOfBuff = 1;
     protected byte[] buffer = new byte[capOfBuff];
     protected int mark = 0;
     protected int positionInByte = 7;
-        
+    
     public void writeBit(byte bit) throws Exception{    
         if(positionInByte == 7){
             buffer[mark] = 0;
@@ -188,7 +196,7 @@ class Encoder{
             // Integer.toBinaryString(buffer[mark]));
         --positionInByte;   // next bit positon in byte
         if(positionInByte <= -1){
-            if (DEBUG) System.out.printf("buffer[mark]: 0x%02X\n", buffer[mark]);
+            // if (DEBUG) System.out.printf("buffer[mark]: 0x%02X\n", buffer[mark]);
             // if (DEBUG) System.out.printf("buffer[mark]: 0b%s\n", 
             ++mark;     // next byte in buffer
             positionInByte = 7;
@@ -201,38 +209,54 @@ class Encoder{
     static HashMap<String, String> decodings = new HashMap();
     // encodes each character in testText to a single byte in testText.enc1
     void decode(int jSymbols) throws Exception{
-        if (DEBUG) System.out.println("Decoding... ");
+        if (DEBUG) System.out.println("\nDecoding... ");
         
         // generate code to string map
         for(String key : HuffmanCode.encodings.keySet()){
             String s = HuffmanCode.encodings.get(key);
             decodings.put(s, key);
         }
-        if (DEBUG) System.out.println("entrySet(): " + decodings.entrySet());
+        // if (DEBUG) System.out.println("entrySet(): " + decodings.entrySet());
         
         String codeStr = "";
         mark = 0;
         int i = 0;
+        int x = 0;
         
         // if (DEBUG) System.out.println("din.available(): " + din.available());
         while(din.available() > 0){
+            if(din.available() == 2){
+                byte[] lastBytes = new byte[2];
+                din.read(lastBytes);
+                // assert lastBytes[1] != 8 : "lastBytes[1]: " + lastBytes[1];
+                x = (lastBytes[1] + 1) % 8;
+                // if (DEBUG) System.out.println("lastBytes[1]: " + lastBytes[0]);
+                // if (DEBUG) System.out.println("x: " + x);
+                din = new DataInputStream(new ByteArrayInputStream(new byte[]{lastBytes[0]}));
+            }
             byte B = din.readByte();
-            for(i = 0; i < 8; ++i)
+            // if(x == i && din.available() == 0)
+            //     break;      // ignore last bits in last byte
+            for(i = 0; i + x < 8; ++i)
             {
+                // if (DEBUG) System.out.println("i: " + i);
+                
                 byte bit = (byte)(B & 0x80 >> i);
                 
                 codeStr += bit != 0 ? "1" : "0";
                 assert codeStr.length() < 16 : "Code too long/ not found: " + codeStr;
-                if (DEBUG) System.out.println("codeStr: " + codeStr);
                 String symbol = decodings.get(codeStr);
                 if(symbol != null){
-                    if (DEBUG) System.out.println("symbol: " + symbol);
+                    // if (DEBUG) System.out.println("codeStr: " + codeStr);
+                    // if (DEBUG) System.out.println("symbol: " + symbol);
                     pout.print(symbol);
                     codeStr = "";
                 }
             }
             // ++mark;
         }
+        
+        
         pout.close();
     }
         
@@ -260,7 +284,7 @@ class Encoder{
     
     // writes buffer to file and resets counters
     protected void flush() throws Exception{
-        if (DEBUG) System.out.println("flushing: ");
+        // if (DEBUG) System.out.println("flushing: ");
         if(mark == 0 && positionInByte == 7)        // buffer already flushed
             return;
         assert dout != null : "dout is null";

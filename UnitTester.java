@@ -28,9 +28,9 @@ class UnitTester{
         // e.binaryOut("11001101");       // 0xCD
         // e.binaryOut("00000000");
         e.binaryOut("11011110");
-        e.binaryOut("11011110");
-        e.binaryOut("11011110");
-        e.binaryOut("11011110");
+        e.binaryOut("110111");
+        // e.binaryOut("11011110");
+        // e.binaryOut("11011110");
         // e.binaryOut("10001001");
         
         e.flush();
@@ -40,6 +40,16 @@ class UnitTester{
         
         
         FileInputStream fin = new FileInputStream(inFile + ".enc");
+        e.din = new DataInputStream(fin);
+        e.pout = new PrintWriter(inFile + ".dec");
+        e.decode(1);
+        
+        // // Phase 2
+        fin = new FileInputStream(inFile);
+        e.din = new DataInputStream(fin);
+        e.encode(1);
+        
+        fin = new FileInputStream(inFile + ".enc");
         e.din = new DataInputStream(fin);
         e.pout = new PrintWriter(inFile + ".dec");
         e.decode(1);

@@ -16,8 +16,8 @@ a3test:
 a3:
 	clear
 	javac *.java
-	java -ea Encoder $(a3file) 8
-	hd testText.enc1
+	java -ea Encoder $(a3file) 100
+	# hd binaryfile.enc1
 	diff testText testText.dec1
 	# diff testText testText.dec2
 	
