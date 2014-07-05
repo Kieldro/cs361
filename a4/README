@@ -29,6 +29,7 @@ Assignment 3
 Calculates the entropy of a language. Implements Huffman algorithm.
 
 Uses HuffmanCode.java code from http://rosettacode.org/
+Encrypts to and decrypts from pure binary with 1 metabyte of overhead.
 
 Assignment 4
 7-3-2014

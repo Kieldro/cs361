@@ -4,7 +4,7 @@ a2file = inFile
 # a2file = metamorphosis.txt
 # a2file = TheIlliad.txt
 a3file = frequenciesFile
-a4file = inFile
+a4file = plaintext
 
 all: a4
 	
@@ -13,7 +13,7 @@ all: a4
 a4:
 	clear
 	javac *.java
-	java -ea AES e keyFile $(a4file)
+	java -ea AES e key $(a4file)
 	# java -ea AES d keyFile $(a4file).enc
 	
 
