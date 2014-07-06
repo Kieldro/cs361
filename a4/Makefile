@@ -16,6 +16,10 @@ a4:
 	java -ea AES e key $(a4file)
 	# java -ea AES d keyFile $(a4file).enc
 	
+a4test:
+	clear
+	javac *.java
+	java -ea UnitTester
 
 a3:
 	clear

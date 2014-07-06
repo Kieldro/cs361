@@ -6,19 +6,24 @@ public class Foo{
         {READ, WRITE, CREATE, DESTROY, RUN, BAD};
     
     public static void main (String[] args){
-        HashMap map = new HashMap();
-        
-        map.put("zero", 0);
-        map.put("x", 3);
-        map.put("y", 5);
-        
-        double x = 0.4;
+        new Foo().wibble();
+    }
+    
+    void wibble(){
         
         
-        int b = 0x80000000 >> 0;
-        int c = 0xFF >> 2;
-        System.out.printf("x = %f\n", Math.log(3)/Math.log(2));
-        System.out.printf("y = %H\n", c);
+        final byte[] A = new byte[]{0x7, 11,13,17};
+        byte[] B = A;
+        A[0] = 23;
+        
+        qux(B);
+        
+        System.out.printf("y = %d\n", A[0]);
+    }
+    
+    void qux(byte[] B){
+        
+        B[0] = 23;
     }
 }
 
