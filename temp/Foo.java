@@ -15,7 +15,7 @@ public class Foo{
         byte[] A = new byte[]{0x7, 11,13,wobble(1)};
         byte B = (byte)0x93;
         A = qux(A);
-        System.out.printf("y = 0x%X\n", A[0]);
+        System.out.printf("y = %d\n", -6%4);
     }
     
     byte wobble(int x){

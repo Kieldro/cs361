@@ -48,6 +48,7 @@ class AES{
         String option = args[0].toLowerCase();
         File keyFile = new File(args[1]);       // 256 bits
         String plainFile = args[2];
+        String outFile;
         // if(DEBUG) System.out.printf("option = %s\n", option == "e");
         byte[][] state = new byte[4][4];        // 128 bit block
         byte[][][] roundKeys;
@@ -58,28 +59,37 @@ class AES{
         
         if (option.equals("e")){
             System.out.println("\nEncrypting...");
-            ;      // encrpyt
+            outFile = plainFile + ".enc";
         }else if (option.equals("d")){
             System.out.println("\nDecrypting...");
-            ;       // decrypt
+            outFile = plainFile + ".dec";
         }else{
             System.out.println("Usage: java -ea AES e|d key plaintext");
             return;
         }
         
         // Input
-        
         Scanner sc = new Scanner(keyFile);
         String line = sc.next();
         byte[][] key = new byte[4][Nk];        // 256 bit key
+        
+        // input Key
         aes.inputMatrix(key, line);
         System.out.println("CipherKey: ");
         aes.printMatrix(key);
         
+        // key expansion
+        byte[][] keySchedule = aes.keyExpansion(key);
+        // System.out.println("Expanded key: ");
+        // aes.printMatrix(keySchedule);
+        roundKeys = aes.splitIntoRoundKeys(keySchedule);
+        
+        // bandwidth data
         long nBytes = keyFile.length();
         double startTime = System.nanoTime();
+        
         sc = new Scanner(new File(plainFile));
-        PrintWriter pout = new PrintWriter(plainFile + ".enc");
+        PrintWriter pout = new PrintWriter(outFile);
         while(sc.hasNext()){
             line = sc.next();
             
@@ -90,51 +100,9 @@ class AES{
                 System.out.println("skipping input line.");
                 continue;
             }
-                System.out.println("Plaintext(state): ");
-                aes.printMatrix(state);
             
-            // key expansion
-            byte[][] keySchedule = aes.keyExpansion(key);
-            System.out.println("Expanded key: ");
-            aes.printMatrix(keySchedule);
-            
-            // initial addRoundkey
-            roundKeys = aes.splitIntoRoundKeys(keySchedule);
-            state = aes.addRoundkey(state, roundKeys[0]);
-            System.out.println("addRoundkey state: ");
-            aes.printMatrix(state);
-            
-            // 14 cycles for 256-bit key
-            for (int r = 1; r < Nr + 1; ++r) 
-            {
-                System.out.printf("ROUND %d: \n", r);
-                // subBytes
-                state = aes.subBytes(state);
-                System.out.println("subBytes state: ");
-                aes.printMatrix(state);
-                
-                // shiftRows
-                state = aes.shiftRows(state);
-                System.out.println("shiftRows state: ");
-                aes.printMatrix(state);
-                
-                // mixColumns
-                if(r != Nr)
-                {
-                    state = aes.mixColumns(state);
-                    System.out.println("mixColumns state: ");
-                    aes.printMatrix(state); 
-                }
-
-                // if(DEBUG) break;
-                // addRoundkey
-                state = aes.addRoundkey(state, roundKeys[r]);
-                System.out.println("addRoundkey state: ");
-                aes.printMatrix(state);
-            }
-
-            System.out.println("Ciphertext: ");
-            aes.printMatrix(state);
+            state = option.equals("e") ? 
+                aes.encrypt(state, roundKeys) : aes.decrypt(state, roundKeys);
             
             // Output
             System.out.printf("Outputting ciphertext to file...\n");
@@ -142,6 +110,7 @@ class AES{
         }
         pout.close();
         
+        // bandwidth calculations
         double endTime = System.nanoTime();
         double duration = (endTime - startTime)/1000/1000/1000;     // seconds
         
@@ -151,6 +120,95 @@ class AES{
         // System.out.printf("Throughput: %f MB/s\n", nBytes/1000000/duration);
     }
     
+    byte[][] encrypt(byte[][] state, byte[][][] roundKeys){
+        
+        System.out.println("Plaintext(state): ");
+        printMatrix(state);
+
+        // initial addRoundkey
+        state = addRoundkey(state, roundKeys[0]);
+        System.out.println("addRoundkey state: ");
+        printMatrix(state);
+        
+        // 14 cycles for 256-bit key
+        for (int r = 1; r < Nr + 1; ++r) 
+        {
+            System.out.printf("ROUND %d: \n", r);
+            // subBytes
+            state = subBytes(state);
+            System.out.println("subBytes state: ");
+            printMatrix(state);
+            
+            // shiftRows
+            state = shiftRows(state);
+            System.out.println("shiftRows state: ");
+            printMatrix(state);
+            
+            // mixColumns
+            if(r != Nr)
+            {
+                state = mixColumns(state);
+                System.out.println("mixColumns state: ");
+                printMatrix(state); 
+            }
+
+            // if(DEBUG) break;
+            // addRoundkey
+            state = addRoundkey(state, roundKeys[r]);
+            System.out.println("addRoundkey state: ");
+            printMatrix(state);
+        }
+
+        System.out.println("Ciphertext: ");
+        printMatrix(state);
+        
+        return state;
+    }
+    
+    byte[][] decrypt(byte[][] state, byte[][][] roundKeys){
+        System.out.println("Ciphertext: ");
+        printMatrix(state);
+        
+        // initial addRoundkey
+        state = addRoundkey(state, roundKeys[Nr]);
+        System.out.println("addRoundkey state: ");
+        printMatrix(state);
+        
+        // 14 cycles for 256-bit key
+        for (int r = Nr-1; r > 0; --r) 
+        {
+            System.out.printf("ROUND %d: \n", r);
+            // invShiftRows
+            state = invShiftRows(state);
+            System.out.println("invShiftRows state: ");
+            printMatrix(state);
+            
+            // invSubBytes
+            state = invSubBytes(state);
+            System.out.println("invSubBytes state: ");
+            printMatrix(state);
+            
+            // addRoundkey
+            state = addRoundkey(state, roundKeys[r]);
+            System.out.println("addRoundkey state: ");
+            printMatrix(state);
+            
+            // invMixColumns
+            if(r != 1)
+            {
+                state = invMixColumns(state);
+                System.out.println("invMixColumns state: ");
+                printMatrix(state); 
+            }
+            // if(DEBUG) break;
+        }
+        System.out.println("Plaintext(state): ");
+        printMatrix(state);
+        
+        return state;
+    }
+    
+    // Encryption methods
     byte[][] subBytes(byte[][] A){
         final int m = A.length;
         final int n = A[0].length;
@@ -164,17 +222,7 @@ class AES{
     }
     
     byte[][] shiftRows(byte[][] A){
-        final int m = A.length;
-        final int n = A[0].length;
-        
-        byte[][] B = new byte[m][n];
-
-        for (int i = 0; i < m; ++i) {
-            for (int j = 0; j < n; ++j) {
-                B[i][j] = A[i][(j+i)%4];
-            }
-        }
-        return A = B;
+        return uniShiftRows(A, 0);
     }
     
     byte[][] mixColumns(byte[][] A){
@@ -208,6 +256,49 @@ class AES{
         return A = wordToCol(A, word, c);
     }
     
+    // Decryption methods
+    byte[][] invSubBytes(byte[][] A){
+        final int m = A.length;
+        final int n = A[0].length;
+        
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i < m; ++i) {
+                A[i][j] = SubByte(A[i][j]);
+            }
+        }
+        return A;
+    }
+    
+    byte[][] invShiftRows(byte[][] A){
+        return uniShiftRows(A, 4);
+    }
+    
+    
+    byte[][] invMixColumns(byte[][] A){
+        // final int m = A.length;
+        final int n = A[0].length;
+        
+        for (int j = 0; j < n; ++j) {
+            A = mixCol(A, j);
+        }
+        
+        return A;
+    }
+    
+    byte[][] uniShiftRows(byte[][] A, int x){
+        final int m = A.length;
+        final int n = A[0].length;
+        
+        byte[][] B = new byte[m][n];
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                B[i][j] = A[i][(j+x-i)%4];
+            }
+        }
+        return A = B;
+    }
+    
     void output(byte[][] A, PrintWriter pout) throws Exception{
         int m = A.length;
         int n = A[0].length;
@@ -217,7 +308,7 @@ class AES{
                 if(str.length() < 2)
                     str = "0" + str;
                 if(str.length() > 2)
-                    str = str.substring(0, 2);
+                    str = str.substring(str.length()-2);
                 // if(DEBUG)System.out.printf("str = %s\n", str);
                 pout.print(str);
             }
