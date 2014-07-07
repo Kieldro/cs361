@@ -242,7 +242,7 @@ class Encoder{
             {
                 // if (DEBUG) System.out.println("i: " + i);
                 
-                byte bit = (byte)(B & 0x80 >> i);
+                byte bit = (byte)(B & 0x80 >>> i);
                 
                 codeStr += bit != 0 ? "1" : "0";
                 // assert codeStr.length() < 32 : "Code too long/ not found: " + codeStr;

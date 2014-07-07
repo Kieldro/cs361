@@ -12,19 +12,20 @@ public class Foo{
     void wibble(){
         
         
-        final byte[] A = new byte[]{0x7, 11,13,17};
-        byte[] B = A;
-        A[0] = 23;
-        
-        qux(B);
-        
-        System.out.printf("y = %d\n", A[0]);
+        final byte[] A = new byte[]{0x7, 11,13,wobble(1)};
+        byte B = (byte)0x93;
+        System.out.printf("y = 0x%X\n", (byte)(B >>> 8));
     }
     
+    byte wobble(int x){
+        
+        return (byte)(x+2);
+    }
     void qux(byte[] B){
         
         B[0] = 23;
     }
+    
 }
 
 class Baz{

@@ -44,9 +44,10 @@ class AES{
         byte[][] state = new byte[4][4];        // 128 bit block
         byte[][] key = new byte[4][Nk];        // 256 bit key
         byte[][][] roundKeys;
+        AES aes = new AES();
         
         System.out.println("S-box: ");
-        printMatrix(sbox);
+        aes.printMatrix(sbox);
         
         if (option.equals("e")){
             System.out.println("\nEncrypting...");
@@ -63,21 +64,24 @@ class AES{
         //If any line contains non-Hex characters, skip it. 
         //If any line is less than 32 Hex characters (128-bits) pad on the right with zeros. 
         //Your program should be able to deal with uppercase, lowercase or mixed input.
+        // TODO multiple lines of plaintext input
         System.out.println("Plaintext: ");
-        inputMatrix(state, plainFile);
+        aes.inputMatrix(state, plainFile);
+        aes.printMatrix(state);
         
         System.out.println("CipherKey: ");
-        inputMatrix(key, keyFile);
+        aes.inputMatrix(key, keyFile);
+        aes.printMatrix(key);
         
         
         // key expansion
         System.out.println("Expanded key: ");
-        byte[][] keySchedule = keyExpansion(key);
-        printMatrix(keySchedule);
+        byte[][] keySchedule = aes.keyExpansion(key);
+        aes.printMatrix(keySchedule);
         
-        roundKeys = splitIntoRoundKeys(keySchedule);
-        addRoundkey(state, roundKeys[0]);
-        printMatrix(state);
+        roundKeys = aes.splitIntoRoundKeys(keySchedule);
+        aes.addRoundkey(state, roundKeys[0]);
+        aes.printMatrix(state);
         // 14 cycles for 256-bit key
         
         // subBytes
@@ -101,7 +105,7 @@ class AES{
         
     }
     
-    static void printMatrix(byte[][] A){
+    void printMatrix(byte[][] A){
         final int m = A.length;
         final int n = A[0].length;
         
@@ -116,7 +120,7 @@ class AES{
     }
     
     // Input plaintext block(128 bits) into state
-    static void inputMatrix(byte[][] A, String file){
+    void inputMatrix(byte[][] A, String file){
         Scanner sc;
         String line;
         try{
@@ -152,14 +156,11 @@ class AES{
         }
         // if(DEBUG) System.out.printf("A = %s\n", A[i][j]);
         System.out.println("A: " + A);
-        printMatrix(A);
     }
     
     // returns 4x60 byte key schedule
-    static byte[][] keyExpansion(byte[][] key){
+    byte[][] keyExpansion(byte[][] key){
         byte[][] keySchedule = new byte[4][4 * (Nr + 1)];
-        int n = 32;     // for AES 256
-        int b = 240;
         
         // copy in cipher key
         for(int i = 0; i < 4; ++i)
@@ -167,9 +168,75 @@ class AES{
                 keySchedule[i][j] = key[i][j];
             }
         
-        
-        
+        for(int j = Nk; j < 4 * Nr + 1; ++j){
+            byte[] word = colToWord(keySchedule, j - 1);        // copy of a column
+            if(j % Nk == 0){
+                byte[] rconWord = new byte[]{rcon((byte)(j / Nk)), 0, 0, 0};
+                // word = SubWord(RotWord(word)) ^ rcon(j / Nk);
+                word = RotWord(word);
+                word = SubWord(word);
+                word = XorWords(word, rconWord);
+            }else if (Nk > 6 && j % Nk == 4){
+                word = SubWord(word);
+            }
+            byte[] wordNk = colToWord(keySchedule, j - Nk);
+            wordNk = XorWords(wordNk, word);
+            keySchedule = wordToCol(keySchedule, wordNk, j);
+        }            
+            
         return keySchedule;
+    }
+    
+    byte[] RotWord(byte[] word){
+        assert word.length == 4;
+        
+        byte temp = word[0];
+        for (int i = 0; i < 4-1; ++i) {
+            word[i] = word[i+1];
+        }
+        word[3] = temp;
+        
+        return word;
+    }
+    
+    byte[] SubWord(byte[] word){
+        assert word.length == 4;
+        
+        for (int i = 0; i < 4; ++i) {
+            byte B = word[i];
+            int r = B >>> 4 & 0x0F;
+            int c = B & 0x0F;
+            // if(DEBUG) System.out.printf("B = 0x%X\n", B);
+            // if(DEBUG) System.out.printf("r = 0x%X\n", r);
+            // if(DEBUG) System.out.printf("c = %s\n", c);
+            
+            word[i] = sbox[r][c];
+        }
+        
+        return word;
+    }
+    
+    byte[] XorWords(byte[] word, byte[] w2){
+        assert word.length == 4;
+        
+        for (int i = 0; i < 4; ++i) {
+            word[i] = (byte)(word[i] ^ w2[i]);
+        }
+        
+        return word;
+    }
+    
+    byte[] colToWord(byte[][] A, final int j){
+        byte[] word = new byte[4];
+        for(int i = 0; i < 4; ++i)
+            word[i] = A[i][j];
+        return word;
+    }
+    
+    byte[][] wordToCol(byte[][] A, byte[] word, final int j){
+        for(int i = 0; i < 4; ++i)
+            A[i][j] = word[i];
+        return A;
     }
     
     byte rcon(byte in) {
@@ -199,18 +266,28 @@ class AES{
         return p;
     }
     
-    static byte[][][] splitIntoRoundKeys(byte[][] keySchedule){
+    byte[][][] splitIntoRoundKeys(byte[][] keySchedule){
+        byte[][][] roundKeys = new byte[Nr + 1][4][4];
         
+        for (int r = 0; r < Nr + 1; ++r) {
+            for (int j = 0; j < 4; ++j) {
+                for (int i = 0; i < 4; ++i) {
+                    // if(DEBUG) System.out.printf("r = %d\n", r);
+                    // if(DEBUG) System.out.printf("i = %d\n", i);
+                    // if(DEBUG) System.out.printf("j = %d\n", j);
+                    roundKeys[r][i][j] = keySchedule[i][4 * r + j];
+                }
+            }
+        }
         
-        return new byte[Nr+1][4][4];
+        return roundKeys;
     }
     
     
     // XOR state with round key
-    static void addRoundkey(byte[][] state, byte[][] roundKey){
+    void addRoundkey(byte[][] state, byte[][] roundKey){
         int m = state.length;
         int n = state[0].length;
-        
         
         // assert 
         for (int j = 0; j < n; ++j) {
