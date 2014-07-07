@@ -9,7 +9,7 @@
 *.exe
 .nfs*
 a.out
-*.sublime-*
+#*.sublime-*
 *.gch
 *.log
 cscope*

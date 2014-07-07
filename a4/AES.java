@@ -6,6 +6,13 @@ class AES{
     static final int Nr = 14;       // rounds
     static final int Nk = 8;       // words in cipher key
     static byte[][] sbox = new byte[16][16];
+    static byte[][] MDS = new byte[][]
+    {
+        {2, 3, 1, 1}, 
+        {1, 2, 3, 1}, 
+        {1, 1, 2, 3}, 
+        {3, 1, 1, 2}
+    };
     
     // static initializer
     static{
@@ -65,30 +72,30 @@ class AES{
         //If any line is less than 32 Hex characters (128-bits) pad on the right with zeros. 
         //Your program should be able to deal with uppercase, lowercase or mixed input.
         // TODO multiple lines of plaintext input
-        System.out.println("Plaintext(state): ");
-        aes.inputMatrix(state, plainFile);
-        aes.printMatrix(state);
         
-        System.out.println("CipherKey: ");
         aes.inputMatrix(key, keyFile);
+        System.out.println("CipherKey: ");
         aes.printMatrix(key);
         
+        aes.inputMatrix(state, plainFile);
+        System.out.println("Plaintext(state): ");
+        aes.printMatrix(state);
         
         // key expansion
-        System.out.println("Expanded key: ");
         byte[][] keySchedule = aes.keyExpansion(key);
+        System.out.println("Expanded key: ");
         aes.printMatrix(keySchedule);
         
-        // initiall addRoundkey
+        // initial addRoundkey
         roundKeys = aes.splitIntoRoundKeys(keySchedule);
-        aes.addRoundkey(state, roundKeys[0]);
+        state = aes.addRoundkey(state, roundKeys[0]);
         System.out.println("addRoundkey state: ");
         aes.printMatrix(state);
         
         // 14 cycles for 256-bit key
-        // for (int r = 0; r < Nr; ++r) 
+        for (int r = 1; r < Nr + 1; ++r) 
         {
-            
+            System.out.printf("ROUND %d: \n", r);
             // subBytes
             state = aes.subBytes(state);
             System.out.println("subBytes state: ");
@@ -100,16 +107,22 @@ class AES{
             aes.printMatrix(state);
             
             // mixColumns
-            
-            
-            
+            if(r != Nr)
+            {
+                state = aes.mixColumns(state);
+                System.out.println("mixColumns state: ");
+                aes.printMatrix(state); 
+            }
+
+            if(DEBUG) break;
             // addRoundkey
-            
-            
+            state = aes.addRoundkey(state, roundKeys[r]);
+            System.out.println("addRoundkey state: ");
+            aes.printMatrix(state);
         }
+
         System.out.println("Ciphertext: ");
-        
-        
+        aes.printMatrix(state);
     }
     
     byte[][] subBytes(byte[][] A){
@@ -128,16 +141,42 @@ class AES{
         final int m = A.length;
         final int n = A[0].length;
         
-        for (int i = 1; i < m; ++i) {
-            byte temp = A[i][0];
-            for (int j = 0; j < n-1; ++j) {
-                A[i][j] = A[i][(j+i)%4];
+        byte[][] B = new byte[m][n];
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                B[i][j] = A[i][(j+i)%4];
             }
-            A[i][n-1] = temp;
+        }
+        return A = B;
+    }
+    
+    byte[][] mixColumns(byte[][] A){
+        // final int m = A.length;
+        final int n = A[0].length;
+        
+        for (int j = 0; j < n; ++j) {
+            A = mixCol(A, j);
+        }
+        
+        return A;
+    }
+
+    // column vector times MDS matrix
+    byte[][] mixCol(byte[][] A, int c){
+        final int m = A.length;
+        final int n = A[0].length;
+        
+        for (int i = 0; i < m; ++i) {
+            byte result = 0;
+            for (int j = 0; j < n; ++j) {
+                result ^= gmul(A[j][c], MDS[i][j]);
+            }
+            A[i][c] = result;
         }
         return A;
     }
-    
+
     void printMatrix(byte[][] A){
         final int m = A.length;
         final int n = A[0].length;
@@ -179,7 +218,7 @@ class AES{
         
         for(char c : line.toCharArray()){
             if(c < '0' || c > 'f' || c > '9' && c < 'a')    // non hex character
-                break;      // skip line
+                break;      // TODO skip line
         }
         
         // if(DEBUG) System.out.printf("line.length() = %s\n", line.length());
@@ -325,18 +364,17 @@ class AES{
         return roundKeys;
     }
     
-    
     // XOR state with round key
-    void addRoundkey(byte[][] state, byte[][] roundKey){
-        int m = state.length;
-        int n = state[0].length;
+    byte[][] addRoundkey(byte[][] A, byte[][] roundKey){
+        int m = A.length;
+        int n = A[0].length;
         
         // assert
         for (int j = 0; j < n; ++j) {
             for (int i = 0; i < m; ++i) {
-                state[i][j] ^= roundKey[i][j];
+                A[i][j] ^= roundKey[i][j];
             }
         }
-        
+        return A;
     }
 }
