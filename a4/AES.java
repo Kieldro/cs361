@@ -46,8 +46,8 @@ class AES{
         byte[][][] roundKeys;
         AES aes = new AES();
         
-        System.out.println("S-box: ");
-        aes.printMatrix(sbox);
+        // System.out.println("S-box: ");
+        // aes.printMatrix(sbox);
         
         if (option.equals("e")){
             System.out.println("\nEncrypting...");
@@ -65,7 +65,7 @@ class AES{
         //If any line is less than 32 Hex characters (128-bits) pad on the right with zeros. 
         //Your program should be able to deal with uppercase, lowercase or mixed input.
         // TODO multiple lines of plaintext input
-        System.out.println("Plaintext: ");
+        System.out.println("Plaintext(state): ");
         aes.inputMatrix(state, plainFile);
         aes.printMatrix(state);
         
@@ -81,6 +81,7 @@ class AES{
         
         roundKeys = aes.splitIntoRoundKeys(keySchedule);
         aes.addRoundkey(state, roundKeys[0]);
+        System.out.println("state: ");
         aes.printMatrix(state);
         // 14 cycles for 256-bit key
         
@@ -106,15 +107,24 @@ class AES{
     }
     
     void printMatrix(byte[][] A){
+        // if()
+        
         final int m = A.length;
         final int n = A[0].length;
+        // if(DEBUG) System.out.printf("n = %d\n", n);
         
-        for (int i = 0; i < m; ++i) {
-            System.out.printf("[ ");
-            for (int j = 0; j < n; ++j) {
-                System.out.printf("%02X ", A[i][j]);
+        for (int b = 0; b < n / 4; ++b) {
+            // if(DEBUG) System.out.printf("b = %d\n", b);
+            for (int i = 0; i < m; ++i) {
+                if (b == 0) System.out.printf("[ ");
+                else    System.out.printf("  ");
+                for (int j = 4 * b; j < 4*b + 4; ++j) {
+                    System.out.printf("%02X ", A[i][j]);
+                }
+                if (b == n / 4 - 1)System.out.printf("]");
+                System.out.println();
             }
-            System.out.printf("]\n");
+            if(b != n/4-1) System.out.println("       +");
         }
         
     }
@@ -127,7 +137,7 @@ class AES{
             sc = new Scanner(new File(file));
             line = sc.next();
         }catch(Exception e){
-            if(DEBUG) System.out.printf("input exception = %s\n",e);
+            if(DEBUG) System.out.printf("input exception = %s\n", e);
             return;
         }
         final int m = A.length;
@@ -142,8 +152,8 @@ class AES{
                 break;      // skip line
         }
         
-        if(DEBUG) System.out.printf("line.length() = %s\n", line.length());
-        if(DEBUG) System.out.printf("line = %s\n", line);
+        // if(DEBUG) System.out.printf("line.length() = %s\n", line.length());
+        // if(DEBUG) System.out.printf("line = %s\n", line);
         int k = 0;
         for (int j = 0; j < n; ++j) {
             for (int i = 0; i < m; ++i) {
@@ -155,7 +165,6 @@ class AES{
             }
         }
         // if(DEBUG) System.out.printf("A = %s\n", A[i][j]);
-        System.out.println("A: " + A);
     }
     
     // returns 4x60 byte key schedule
@@ -168,7 +177,7 @@ class AES{
                 keySchedule[i][j] = key[i][j];
             }
         
-        for(int j = Nk; j < 4 * Nr + 1; ++j){
+        for(int j = Nk; j < 4 * (Nr + 1); ++j){
             byte[] word = colToWord(keySchedule, j - 1);        // copy of a column
             if(j % Nk == 0){
                 byte[] rconWord = new byte[]{rcon((byte)(j / Nk)), 0, 0, 0};
