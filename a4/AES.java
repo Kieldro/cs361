@@ -269,7 +269,7 @@ class AES{
     }
     
     byte[][] invShiftRows(byte[][] A){
-        return uniShiftRows(A, 4);
+        return uniShiftRows(A, 1);
     }
     
     byte[][] invMixColumns(byte[][] A){
@@ -282,10 +282,10 @@ class AES{
         final int n = A[0].length;
         
         byte[][] B = new byte[m][n];
-
         for (int i = 0; i < m; ++i) {
             for (int j = 0; j < n; ++j) {
-                B[i][j] = A[i][(j+x-i)%4];
+                int c = (j + i + x*(4 - 2*i))%4;
+                B[i][j] = A[i][c];
             }
         }
         return A = B;

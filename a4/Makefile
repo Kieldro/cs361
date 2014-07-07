@@ -13,9 +13,9 @@ all: a4
 a4:
 	clear
 	javac *.java
-	# java -ea AES e key $(a4file)
+	java -ea AES e key $(a4file)
 	java -ea AES d key $(a4file).enc
-	# diff plaintext plaintext.enc.dec
+	diff $(a4file) $(a4file).enc.dec
 	
 a4test:
 	clear
