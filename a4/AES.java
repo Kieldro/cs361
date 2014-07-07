@@ -165,28 +165,27 @@ class AES{
     // column vector times MDS matrix
     byte[][] mixCol(byte[][] A, int c){
         final int m = A.length;
-        final int n = A[0].length;
+        // final int n = A[0].length;
+        byte[] word = new byte[4];
         
         for (int i = 0; i < m; ++i) {
-            byte result = 0;
-            for (int j = 0; j < n; ++j) {
-                result ^= gmul(A[j][c], MDS[i][j]);
+            for (int j = 0; j < 4; ++j) {
+                word[i] ^= gmul(A[j][c], MDS[i][j]);
                 if(DEBUG) System.out.printf("A[j][c] = 0x%X\n", A[j][c]);
                 if(DEBUG) System.out.printf("MDS[i][j] = 0x%X\n", MDS[i][j]);
                 if(DEBUG) System.out.printf("gmul(A[j][c], MDS[i][j]) = 0x%X\n", gmul(A[j][c], MDS[i][j]));
                 if(DEBUG) System.out.printf("i = 0x%X\n", i);
                 if(DEBUG) System.out.printf("j = 0x%X\n", j);
             }
-            if(DEBUG) System.out.printf("result = 0x%X\n", result);
-            A[i][c] = result;
+            if(DEBUG) System.out.printf("word = 0x%X\n\n", word[i]);
         }
-        return A;
+        return A = wordToCol(A, word, c);
     }
 
     void printMatrix(byte[][] A){
         final int m = A.length;
         final int n = A[0].length;
-        // if(DEBUG) System.out.printf("n = %d\n", n);
+        if(DEBUG) System.out.printf("n = %d\n", n);
         
         for (int b = 0; b < n / 4; ++b) {
             // if(DEBUG) System.out.printf("b = %d\n", b);
@@ -339,15 +338,16 @@ class AES{
     
     byte gmul(byte a, byte b) {
         byte p = 0;
-        byte counter;
         byte hi_bit_set;
-        for(counter = 0; counter < 8; counter++) {
-            if((b & 1) == 1) 
+        for(byte counter = 0; counter < 8; counter++) {
+            if((b & 1) != 0) 
                 p ^= a;
             hi_bit_set = (byte)(a & 0x80);
             a <<= 1;
-            if(hi_bit_set == 0x80) 
-                a ^= 0x1b;      
+            if(hi_bit_set != 0x00) {        // sign extend!
+                // if(DEBUG) System.out.printf("hi_bit_set = 0x%X\n", (hi_bit_set));
+                a ^= 0x1b;
+            }
             b >>= 1;
         }
         return p;

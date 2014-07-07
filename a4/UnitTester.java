@@ -10,26 +10,45 @@ class UnitTester{
             
         //     System.out.printf("aes.rcon(%d) = 0x%X\n", i, aes.rcon((byte)i));
         // }
-		byte b1 = (byte)0xd4;
-		byte b2 = 2;
+		// byte b1 = (byte)0xd4;
+		// byte b2 = 2;
 
 
 
-        byte B = (byte)(aes.gmul(b1, b2)^aes.gmul((byte)0xbf, (byte)0x3)^aes.gmul((byte)0x1, (byte)0x5d)^aes.gmul((byte)0x1, (byte)0x30));
-        B = (byte)(aes.gmul((byte)1, (byte)0xd4)^aes.gmul((byte)0xbf, (byte)0x2)^aes.gmul((byte)0x3, (byte)0x5d)^aes.gmul((byte)0x30, (byte)0x01));
-        System.out.printf("aes.gmul() = 0x%X\n", B);
+  //       byte B = (byte)(aes.gmul(b1, b2)^aes.gmul((byte)0xbf, (byte)0x3)^aes.gmul((byte)0x1, (byte)0x5d)^aes.gmul((byte)0x1, (byte)0x30));
+  //       B = (byte)(aes.gmul((byte)1, (byte)0xd4)^aes.gmul((byte)0xbf, (byte)0x2)^aes.gmul((byte)0x3, (byte)0x5d)^aes.gmul((byte)0x30, (byte)0x01));
+  //       System.out.printf("aes.gmul() = 0x%X\n", B);
 
 
         byte[][] A = new byte[][]
 	    {
-	        {1, 0x2d, 1, 1}, 
-	        {1, 0x26, 3, 1}, 
-	        {1, 0x31, 2, 3}, 
-	        {1, 0x4c, 1, 2}
+	        {(byte)0xD4/*, 0x2d, (byte)0xF2*/}, 
+	        {(byte)0xD4/*, 0x26, (byte)0x0A*/}, 
+	        {(byte)0xD4/*, 0x31, (byte)0x22*/}, 
+	        {(byte)0xD5/*, 0x4c, (byte)0x5C*/}
 	    };
 
+        aes.printMatrix(A);
 	    aes.mixColumns(A);
 	    aes.printMatrix(A);
+        
+        // for(byte i = 0; i <= (byte)0xF; ++i){
+        //     for(byte j = 0; j <= (byte)0xF; ++j){
+        //         byte k = 0;
+        //         k = (byte)((i << 4) | j);
+        //         System.out.printf("aes.gmul(0x%02X, 2) = 0x%X\n", k, aes.gmul(k, (byte)2));
+        //     }
+        // }
+        byte B = aes.gmul((byte)0xFF, (byte)2);
+        System.out.printf("aes.gmul(0x%02X, 2) = 0x%X\n", (byte)0xFF, B);
+        
+        for (int i = 0; i < A.length; ++i) {
+            for (int j = 0; j < A[0].length; ++j) {
+                System.out.printf("%02X ", A[i][j]);
+            }
+        System.out.println();
+        }
+        
     }
 }
 
