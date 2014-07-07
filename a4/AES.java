@@ -15,6 +15,13 @@ class AES{
         {1, 1, 2, 3}, 
         {3, 1, 1, 2}
     };
+    static byte[][] invMDS = new byte[][]
+    {
+        {14, 11, 13,  9}, 
+        { 9, 14, 11, 13}, 
+        {13,  9, 14, 11}, 
+        {11, 13,  9, 14}
+    };
     
     // static initializer
     static{
@@ -196,7 +203,7 @@ class AES{
         printMatrix(state);
         
         // 14 cycles for 256-bit key
-        for (int r = Nr-1; r > 0; --r) 
+        for (int r = Nr-1; r >= 0; --r) 
         {
             System.out.printf("ROUND %d: \n", r);
             // invShiftRows
@@ -215,7 +222,7 @@ class AES{
             printMatrix(state);
             
             // invMixColumns
-            if(r != 1)
+            if(r != 0)
             {
                 state = invMixColumns(state);
                 System.out.println("invMixColumns state: ");
@@ -229,6 +236,20 @@ class AES{
         return state;
     }
     
+    // XOR state with round key
+    byte[][] addRoundkey(byte[][] A, byte[][] roundKey){
+        int m = A.length;
+        int n = A[0].length;
+        
+        // assert
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i < m; ++i) {
+                A[i][j] ^= roundKey[i][j];
+            }
+        }
+        return A;
+    }
+    
     // Encryption methods
     byte[][] subBytes(byte[][] A){
         return uniSubBytes(A, sbox);
@@ -239,34 +260,7 @@ class AES{
     }
     
     byte[][] mixColumns(byte[][] A){
-        // final int m = A.length;
-        final int n = A[0].length;
-        
-        for (int j = 0; j < n; ++j) {
-            A = mixCol(A, j);
-        }
-        
-        return A;
-    }
-
-    // column vector times MDS matrix
-    byte[][] mixCol(byte[][] A, int c){
-        final int m = A.length;
-        // final int n = A[0].length;
-        byte[] word = new byte[4];
-        
-        for (int i = 0; i < m; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                word[i] ^= gmul(A[j][c], MDS[i][j]);
-                // if(DEBUG) System.out.printf("A[j][c] = 0x%X\n", A[j][c]);
-                // if(DEBUG) System.out.printf("MDS[i][j] = 0x%X\n", MDS[i][j]);
-                // if(DEBUG) System.out.printf("gmul(A[j][c], MDS[i][j]) = 0x%X\n", gmul(A[j][c], MDS[i][j]));
-                // if(DEBUG) System.out.printf("i = 0x%X\n", i);
-                // if(DEBUG) System.out.printf("j = 0x%X\n", j);
-            }
-            // if(DEBUG) System.out.printf("word = 0x%X\n\n", word[i]);
-        }
-        return A = wordToCol(A, word, c);
+        return uniMixColumns(A, MDS);
     }
     
     // Decryption methods
@@ -279,16 +273,10 @@ class AES{
     }
     
     byte[][] invMixColumns(byte[][] A){
-        // final int m = A.length;
-        final int n = A[0].length;
-        
-        for (int j = 0; j < n; ++j) {
-            A = mixCol(A, j);
-        }
-        
-        return A;
+        return uniMixColumns(A, invMDS);
     }
     
+    // factored methods
     byte[][] uniShiftRows(byte[][] A, int x){
         final int m = A.length;
         final int n = A[0].length;
@@ -313,6 +301,36 @@ class AES{
             }
         }
         return A;
+    }
+    
+    byte[][] uniMixColumns(byte[][] A, byte[][] table){
+        final int n = A[0].length;
+        
+        for (int j = 0; j < n; ++j) {
+            A = mixCol(A, j, table);
+        }
+        
+        return A;
+    }
+
+    // column vector times table
+    byte[][] mixCol(byte[][] A, int c, byte[][] table){
+        final int m = A.length;
+        // final int n = A[0].length;
+        byte[] word = new byte[4];
+        
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                word[i] ^= gmul(A[j][c], table[i][j]);
+                // if(DEBUG) System.out.printf("A[j][c] = 0x%X\n", A[j][c]);
+                // if(DEBUG) System.out.printf("table[i][j] = 0x%X\n", table[i][j]);
+                // if(DEBUG) System.out.printf("gmul(A[j][c], table[i][j]) = 0x%X\n", gmul(A[j][c], MDS[i][j]));
+                // if(DEBUG) System.out.printf("i = 0x%X\n", i);
+                // if(DEBUG) System.out.printf("j = 0x%X\n", j);
+            }
+            // if(DEBUG) System.out.printf("word = 0x%X\n\n", word[i]);
+        }
+        return A = wordToCol(A, word, c);
     }
     
     void output(byte[][] A, PrintWriter pout) throws Exception{
@@ -509,19 +527,5 @@ class AES{
         }
         
         return roundKeys;
-    }
-    
-    // XOR state with round key
-    byte[][] addRoundkey(byte[][] A, byte[][] roundKey){
-        int m = A.length;
-        int n = A[0].length;
-        
-        // assert
-        for (int j = 0; j < n; ++j) {
-            for (int i = 0; i < m; ++i) {
-                A[i][j] ^= roundKey[i][j];
-            }
-        }
-        return A;
     }
 }
