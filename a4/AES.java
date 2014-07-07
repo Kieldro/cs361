@@ -79,36 +79,66 @@ class AES{
         byte[][] keySchedule = aes.keyExpansion(key);
         aes.printMatrix(keySchedule);
         
+        // initiall addRoundkey
         roundKeys = aes.splitIntoRoundKeys(keySchedule);
         aes.addRoundkey(state, roundKeys[0]);
-        System.out.println("state: ");
+        System.out.println("addRoundkey state: ");
         aes.printMatrix(state);
+        
         // 14 cycles for 256-bit key
-        
-        // subBytes
-        
-        
-        
-        // shiftRows
-        
-        
-        
-        
-        // mixColumns
-        
-        
-        
-        // addRoundkey
-        
-        
+        // for (int r = 0; r < Nr; ++r) 
+        {
+            
+            // subBytes
+            state = aes.subBytes(state);
+            System.out.println("subBytes state: ");
+            aes.printMatrix(state);
+            
+            // shiftRows
+            state = aes.shiftRows(state);
+            System.out.println("shiftRows state: ");
+            aes.printMatrix(state);
+            
+            // mixColumns
+            
+            
+            
+            // addRoundkey
+            
+            
+        }
         System.out.println("Ciphertext: ");
         
         
     }
     
-    void printMatrix(byte[][] A){
-        // if()
+    byte[][] subBytes(byte[][] A){
+        final int m = A.length;
+        final int n = A[0].length;
         
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i < m; ++i) {
+                A[i][j] = SubByte(A[i][j]);
+            }
+        }
+        return A;
+    }
+    
+    byte[][] shiftRows(byte[][] A){
+        final int m = A.length;
+        final int n = A[0].length;
+        
+        for (int i = 1; i < m; ++i) {
+            byte temp = A[i][0];
+            for (int j = 0; j < n-1; ++j) {
+                A[i][j] = A[i][(j+i)%4];
+            }
+            A[i][n-1] = temp;
+        }
+        return A;
+    }
+    
+    void printMatrix(byte[][] A){
         final int m = A.length;
         final int n = A[0].length;
         // if(DEBUG) System.out.printf("n = %d\n", n);
@@ -212,17 +242,20 @@ class AES{
         assert word.length == 4;
         
         for (int i = 0; i < 4; ++i) {
-            byte B = word[i];
-            int r = B >>> 4 & 0x0F;
-            int c = B & 0x0F;
-            // if(DEBUG) System.out.printf("B = 0x%X\n", B);
-            // if(DEBUG) System.out.printf("r = 0x%X\n", r);
-            // if(DEBUG) System.out.printf("c = %s\n", c);
-            
-            word[i] = sbox[r][c];
+            word[i] = SubByte(word[i]);
         }
         
         return word;
+    }
+    
+    byte SubByte(byte B){
+        int r = B >>> 4 & 0x0F;
+        int c = B & 0x0F;            
+        // if(DEBUG) System.out.printf("B = 0x%X\n", B);
+        // if(DEBUG) System.out.printf("r = 0x%X\n", r);
+        // if(DEBUG) System.out.printf("c = %s\n", c);
+        B = sbox[r][c];
+        return B;
     }
     
     byte[] XorWords(byte[] word, byte[] w2){
@@ -298,7 +331,7 @@ class AES{
         int m = state.length;
         int n = state[0].length;
         
-        // assert 
+        // assert
         for (int j = 0; j < n; ++j) {
             for (int i = 0; i < m; ++i) {
                 state[i][j] ^= roundKey[i][j];
