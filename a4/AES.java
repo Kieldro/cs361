@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.lang.*;
 
 class AES{
     static boolean DEBUG = true;
@@ -45,11 +46,10 @@ class AES{
     
     public static void main(String[] args) throws Exception{
         String option = args[0].toLowerCase();
-        String keyFile = args[1];       // 256 bits
+        File keyFile = new File(args[1]);       // 256 bits
         String plainFile = args[2];
         // if(DEBUG) System.out.printf("option = %s\n", option == "e");
         byte[][] state = new byte[4][4];        // 128 bit block
-        byte[][] key = new byte[4][Nk];        // 256 bit key
         byte[][][] roundKeys;
         AES aes = new AES();
         
@@ -67,62 +67,88 @@ class AES{
             return;
         }
         
-        // input
-        //If any line contains non-Hex characters, skip it. 
-        //If any line is less than 32 Hex characters (128-bits) pad on the right with zeros. 
-        //Your program should be able to deal with uppercase, lowercase or mixed input.
-        // TODO multiple lines of plaintext input
+        // Input
         
-        aes.inputMatrix(key, keyFile);
+        Scanner sc = new Scanner(keyFile);
+        String line = sc.next();
+        byte[][] key = new byte[4][Nk];        // 256 bit key
+        aes.inputMatrix(key, line);
         System.out.println("CipherKey: ");
         aes.printMatrix(key);
         
-        aes.inputMatrix(state, plainFile);
-        System.out.println("Plaintext(state): ");
-        aes.printMatrix(state);
-        
-        // key expansion
-        byte[][] keySchedule = aes.keyExpansion(key);
-        System.out.println("Expanded key: ");
-        aes.printMatrix(keySchedule);
-        
-        // initial addRoundkey
-        roundKeys = aes.splitIntoRoundKeys(keySchedule);
-        state = aes.addRoundkey(state, roundKeys[0]);
-        System.out.println("addRoundkey state: ");
-        aes.printMatrix(state);
-        
-        // 14 cycles for 256-bit key
-        for (int r = 1; r < Nr + 1; ++r) 
-        {
-            System.out.printf("ROUND %d: \n", r);
-            // subBytes
-            state = aes.subBytes(state);
-            System.out.println("subBytes state: ");
-            aes.printMatrix(state);
+        long nBytes = keyFile.length();
+        double startTime = System.nanoTime();
+        sc = new Scanner(new File(plainFile));
+        PrintWriter pout = new PrintWriter(plainFile + ".enc");
+        while(sc.hasNext()){
+            line = sc.next();
             
-            // shiftRows
-            state = aes.shiftRows(state);
-            System.out.println("shiftRows state: ");
-            aes.printMatrix(state);
-            
-            // mixColumns
-            if(r != Nr)
-            {
-                state = aes.mixColumns(state);
-                System.out.println("mixColumns state: ");
-                aes.printMatrix(state); 
+            // process line of plaintext
+            try{
+                aes.inputMatrix(state, line);
+            }catch(Exception e){
+                System.out.println("skipping input line.");
+                continue;
             }
-
-            // if(DEBUG) break;
-            // addRoundkey
-            state = aes.addRoundkey(state, roundKeys[r]);
+                System.out.println("Plaintext(state): ");
+                aes.printMatrix(state);
+            
+            // key expansion
+            byte[][] keySchedule = aes.keyExpansion(key);
+            System.out.println("Expanded key: ");
+            aes.printMatrix(keySchedule);
+            
+            // initial addRoundkey
+            roundKeys = aes.splitIntoRoundKeys(keySchedule);
+            state = aes.addRoundkey(state, roundKeys[0]);
             System.out.println("addRoundkey state: ");
             aes.printMatrix(state);
-        }
+            
+            // 14 cycles for 256-bit key
+            for (int r = 1; r < Nr + 1; ++r) 
+            {
+                System.out.printf("ROUND %d: \n", r);
+                // subBytes
+                state = aes.subBytes(state);
+                System.out.println("subBytes state: ");
+                aes.printMatrix(state);
+                
+                // shiftRows
+                state = aes.shiftRows(state);
+                System.out.println("shiftRows state: ");
+                aes.printMatrix(state);
+                
+                // mixColumns
+                if(r != Nr)
+                {
+                    state = aes.mixColumns(state);
+                    System.out.println("mixColumns state: ");
+                    aes.printMatrix(state); 
+                }
 
-        System.out.println("Ciphertext: ");
-        aes.printMatrix(state);
+                // if(DEBUG) break;
+                // addRoundkey
+                state = aes.addRoundkey(state, roundKeys[r]);
+                System.out.println("addRoundkey state: ");
+                aes.printMatrix(state);
+            }
+
+            System.out.println("Ciphertext: ");
+            aes.printMatrix(state);
+            
+            // Output
+            System.out.printf("Outputting ciphertext to file...\n");
+            aes.output(state, pout);
+        }
+        pout.close();
+        
+        double endTime = System.nanoTime();
+        double duration = (endTime - startTime)/1000/1000/1000;     // seconds
+        
+        System.out.printf("Input size: %d B\n", nBytes);
+        System.out.printf("duration: %f ms\n", duration);
+        System.out.printf("Throughput: %f B/s\n", nBytes/duration);
+        // System.out.printf("Throughput: %f MB/s\n", nBytes/1000000/duration);
     }
     
     byte[][] subBytes(byte[][] A){
@@ -171,21 +197,38 @@ class AES{
         for (int i = 0; i < m; ++i) {
             for (int j = 0; j < 4; ++j) {
                 word[i] ^= gmul(A[j][c], MDS[i][j]);
-                if(DEBUG) System.out.printf("A[j][c] = 0x%X\n", A[j][c]);
-                if(DEBUG) System.out.printf("MDS[i][j] = 0x%X\n", MDS[i][j]);
-                if(DEBUG) System.out.printf("gmul(A[j][c], MDS[i][j]) = 0x%X\n", gmul(A[j][c], MDS[i][j]));
-                if(DEBUG) System.out.printf("i = 0x%X\n", i);
-                if(DEBUG) System.out.printf("j = 0x%X\n", j);
+                // if(DEBUG) System.out.printf("A[j][c] = 0x%X\n", A[j][c]);
+                // if(DEBUG) System.out.printf("MDS[i][j] = 0x%X\n", MDS[i][j]);
+                // if(DEBUG) System.out.printf("gmul(A[j][c], MDS[i][j]) = 0x%X\n", gmul(A[j][c], MDS[i][j]));
+                // if(DEBUG) System.out.printf("i = 0x%X\n", i);
+                // if(DEBUG) System.out.printf("j = 0x%X\n", j);
             }
-            if(DEBUG) System.out.printf("word = 0x%X\n\n", word[i]);
+            // if(DEBUG) System.out.printf("word = 0x%X\n\n", word[i]);
         }
         return A = wordToCol(A, word, c);
+    }
+    
+    void output(byte[][] A, PrintWriter pout) throws Exception{
+        int m = A.length;
+        int n = A[0].length;
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i < m; ++i) {
+                String str = Integer.toHexString(A[i][j]).toUpperCase();
+                if(str.length() < 2)
+                    str = "0" + str;
+                if(str.length() > 2)
+                    str = str.substring(0, 2);
+                // if(DEBUG)System.out.printf("str = %s\n", str);
+                pout.print(str);
+            }
+        }
+        pout.println();
     }
 
     void printMatrix(byte[][] A){
         final int m = A.length;
         final int n = A[0].length;
-        if(DEBUG) System.out.printf("n = %d\n", n);
+        // if(DEBUG) System.out.printf("n = %d\n", n);
         
         for (int b = 0; b < n / 4; ++b) {
             // if(DEBUG) System.out.printf("b = %d\n", b);
@@ -204,16 +247,7 @@ class AES{
     }
     
     // Input plaintext block(128 bits) into state
-    void inputMatrix(byte[][] A, String file){
-        Scanner sc;
-        String line;
-        try{
-            sc = new Scanner(new File(file));
-            line = sc.next();
-        }catch(Exception e){
-            if(DEBUG) System.out.printf("input exception = %s\n", e);
-            return;
-        }
+    void inputMatrix(byte[][] A, String line) throws Exception{
         final int m = A.length;
         final int n = A[0].length;
         
@@ -221,13 +255,13 @@ class AES{
             line += "0";
         line = line.substring(0, 2*m*n).toLowerCase();      // truncate extra
         
+        // if(DEBUG) System.out.printf("line = %s\n", line);
         for(char c : line.toCharArray()){
-            if(c < '0' || c > 'f' || c > '9' && c < 'a')    // non hex character
-                break;      // TODO skip line
+            if(c < '0' || c > 'f' || c > '9' && c < 'a')
+                throw new Exception(String.format("Non hex character. '%s'", c));
         }
         
         // if(DEBUG) System.out.printf("line.length() = %s\n", line.length());
-        // if(DEBUG) System.out.printf("line = %s\n", line);
         int k = 0;
         for (int j = 0; j < n; ++j) {
             for (int i = 0; i < m; ++i) {
