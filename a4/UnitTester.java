@@ -6,11 +6,30 @@ class UnitTester{
     public static void main(String[] args) {
         AES aes = new AES();
         
-        for (int i = 0; i < 256; ++i) {
+        // for (int i = 0; i < 256; ++i) {
             
-            System.out.printf("aes.rcon(%d) = 0x%X\n", i, aes.rcon((byte)i));
-        }
-        
+        //     System.out.printf("aes.rcon(%d) = 0x%X\n", i, aes.rcon((byte)i));
+        // }
+		byte b1 = (byte)0xd4;
+		byte b2 = 2;
+
+
+
+        byte B = (byte)(aes.gmul(b1, b2)^aes.gmul((byte)0xbf, (byte)0x3)^aes.gmul((byte)0x1, (byte)0x5d)^aes.gmul((byte)0x1, (byte)0x30));
+        B = (byte)(aes.gmul((byte)1, (byte)0xd4)^aes.gmul((byte)0xbf, (byte)0x2)^aes.gmul((byte)0x3, (byte)0x5d)^aes.gmul((byte)0x30, (byte)0x01));
+        System.out.printf("aes.gmul() = 0x%X\n", B);
+
+
+        byte[][] A = new byte[][]
+	    {
+	        {1, 0x2d, 1, 1}, 
+	        {1, 0x26, 3, 1}, 
+	        {1, 0x31, 2, 3}, 
+	        {1, 0x4c, 1, 2}
+	    };
+
+	    aes.mixColumns(A);
+	    aes.printMatrix(A);
     }
 }
 

@@ -171,7 +171,13 @@ class AES{
             byte result = 0;
             for (int j = 0; j < n; ++j) {
                 result ^= gmul(A[j][c], MDS[i][j]);
+                if(DEBUG) System.out.printf("A[j][c] = 0x%X\n", A[j][c]);
+                if(DEBUG) System.out.printf("MDS[i][j] = 0x%X\n", MDS[i][j]);
+                if(DEBUG) System.out.printf("gmul(A[j][c], MDS[i][j]) = 0x%X\n", gmul(A[j][c], MDS[i][j]));
+                if(DEBUG) System.out.printf("i = 0x%X\n", i);
+                if(DEBUG) System.out.printf("j = 0x%X\n", j);
             }
+            if(DEBUG) System.out.printf("result = 0x%X\n", result);
             A[i][c] = result;
         }
         return A;
