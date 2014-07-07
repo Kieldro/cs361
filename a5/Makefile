@@ -1,14 +1,17 @@
-prog_file = keo_program4.zip
-assignment = cs361_prog4
+prog_file = keo_program5.zip
+assignment = cs361_prog5
 a2file = inFile
 # a2file = metamorphosis.txt
 # a2file = TheIlliad.txt
 a3file = frequenciesFile
 a4file = plaintext
 
-all: a4
+all: a5
 	
-	
+a5:
+	clear
+	javac *.java
+	java -ea PasswordCrack dictionary passwords
 	
 a4:
 	clear
