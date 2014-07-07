@@ -114,7 +114,7 @@ class AES{
                 aes.printMatrix(state); 
             }
 
-            if(DEBUG) break;
+            // if(DEBUG) break;
             // addRoundkey
             state = aes.addRoundkey(state, roundKeys[r]);
             System.out.println("addRoundkey state: ");
