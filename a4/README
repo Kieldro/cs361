@@ -34,5 +34,8 @@ Encrypts to and decrypts from pure binary with 1 metabyte of overhead.
 Assignment 4
 7-3-2014
 Advanced Encryption Standard (AES-256)
-timing: x MB/s
-Encrypt = 97.900817 B/s
+timing: 
+Encrypt = 1170.151238 B/s
+Decrypt = 1176.410486 B/s
+
+Both times seem to be similar.

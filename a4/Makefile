@@ -1,5 +1,5 @@
-prog_file = keo_program3.zip
-assignment = cs361_prog3
+prog_file = keo_program4.zip
+assignment = cs361_prog4
 a2file = inFile
 # a2file = metamorphosis.txt
 # a2file = TheIlliad.txt
@@ -56,17 +56,16 @@ compile: Security/*.java
 	javac  Security/*.java
 	
 clean:
-	rm -rf Security/*.class *.out *.log *.enc* *.dec*
+	rm -rf *.class Security/*.class *.out *.log *.enc* *.dec*
 	
 turnin: 
-	zip -r $(prog_file) Encoder.java Makefile README HuffmanCode.java \
-		UnitTester.java frequenciesFile 
+	zip -r $(prog_file) *
 	turnin --submit zhaos $(assignment) $(prog_file)
 	turnin --list zhaos $(assignment)
 	
 verify: 
 	turnin --list zhaos $(assignment)
-	rm -r keo/
+	rm -rf keo/
 	turnin --verify zhaos $(assignment)
 	cd keo; unzip $(prog_file); make
 	
