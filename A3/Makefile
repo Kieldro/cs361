@@ -41,7 +41,7 @@ compile: Security/*.java
 	javac  Security/*.java
 	
 clean:
-	rm -rf Security/*.class *.out *.log *.enc* *.dec*
+	rm -rf Security/*.class *.out *.log *.enc* *.dec* *.zip
 	
 turnin: 
 	zip -r $(prog_file) Encoder.java Makefile README HuffmanCode.java \
