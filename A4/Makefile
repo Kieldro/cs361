@@ -1,4 +1,4 @@
-prog_file = keo_program4.zip
+prog_file = ib_program4.zip
 assignment = cs361_prog4
 a2file = inFile
 # a2file = metamorphosis.txt
@@ -55,13 +55,13 @@ compile: Security/*.java
 	javac  Security/*.java
 	
 clean:
-	rm -rf *.class Security/*.class *.out *.log *.enc* *.dec* keo/
+	rm -rf *.class Security/*.class *.out *.log *.enc* *.dec* keo/ *.class
 	
 turnin: 
-	cp ../README .
+	rm -f $(prog_file)
 	zip -r $(prog_file) *
-	turnin --submit zhaos $(assignment) $(prog_file)
-	turnin --list zhaos $(assignment)
+	# turnin --submit zhaos $(assignment) $(prog_file)
+	# turnin --list zhaos $(assignment)
 	
 verify: 
 	turnin --list zhaos $(assignment)

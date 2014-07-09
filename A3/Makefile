@@ -1,4 +1,4 @@
-prog_file = keo_program3.zip
+prog_file = ib_program3.zip
 assignment = cs361_prog3
 a2file = inFile
 # a2file = metamorphosis.txt
@@ -41,13 +41,12 @@ compile: Security/*.java
 	javac  Security/*.java
 	
 clean:
-	rm -rf Security/*.class *.out *.log *.enc* *.dec* *.zip
+	rm -rf Security/*.class *.out *.log *.enc* *.dec* *.zip *.class
 	
 turnin: 
-	zip -r $(prog_file) Encoder.java Makefile README HuffmanCode.java \
-		UnitTester.java frequenciesFile 
-	turnin --submit zhaos $(assignment) $(prog_file)
-	turnin --list zhaos $(assignment)
+	zip -r $(prog_file) *
+	# turnin --submit zhaos $(assignment) $(prog_file)
+	# turnin --list zhaos $(assignment)
 	
 verify: 
 	turnin --list zhaos $(assignment)

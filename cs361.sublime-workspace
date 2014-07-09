@@ -8,10 +8,13 @@
 	"buffers":
 	[
 		{
+			"contents": "",
 			"file": "a4/AES.java",
+			"file_size": -1,
+			"file_write_time": -1,
 			"settings":
 			{
-				"buffer_size": 11500,
+				"buffer_size": 0,
 				"line_ending": "Unix"
 			}
 		},
@@ -19,7 +22,7 @@
 			"file": "a4/UnitTester.java",
 			"settings":
 			{
-				"buffer_size": 7205,
+				"buffer_size": 0,
 				"line_ending": "Unix"
 			}
 		},
@@ -27,7 +30,7 @@
 			"file": "temp/Foo.java",
 			"settings":
 			{
-				"buffer_size": 659,
+				"buffer_size": 718,
 				"line_ending": "Unix"
 			}
 		}
@@ -43,10 +46,7 @@
 	},
 	"console":
 	{
-		"height": 0.0,
-		"history":
-		[
-		]
+		"height": 0.0
 	},
 	"distraction_free":
 	{
@@ -103,10 +103,9 @@
 				{
 					"buffer": 0,
 					"file": "a4/AES.java",
-					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 11500,
+						"buffer_size": 0,
 						"regions":
 						{
 						},
@@ -127,16 +126,14 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
 					"file": "a4/UnitTester.java",
-					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7205,
+						"buffer_size": 0,
 						"regions":
 						{
 						},
@@ -155,24 +152,22 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
 					"type": "text"
 				},
 				{
 					"buffer": 2,
 					"file": "temp/Foo.java",
-					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 659,
+						"buffer_size": 718,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								406,
-								406
+								0,
+								0
 							]
 						],
 						"settings":
@@ -185,7 +180,6 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -226,7 +220,6 @@
 	{
 		"height": 0.0
 	},
-	"project": "cs361.sublime-project",
 	"replace":
 	{
 		"height": 46.0
@@ -248,24 +241,10 @@
 		],
 		"width": 0.0
 	},
-	"select_symbol":
-	{
-		"height": 0.0,
-		"selected_items":
-		[
-		],
-		"width": 0.0
-	},
-	"settings":
-	{
-	},
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
 	"side_bar_width": 150.0,
-	"status_bar_visible": true,
-	"template_settings":
-	{
-	}
+	"status_bar_visible": true
 }

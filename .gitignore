@@ -13,6 +13,7 @@ a.out
 *.gch
 *.log
 cscope*
+*.zip
 
 # repo specific
 *.out
