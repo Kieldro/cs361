@@ -1,18 +1,18 @@
-all: A1 A2 A3 A4 A5
+all: a5
 
-A1:
+a1:
 	cd A1; make a1
 	
-A2:
+a2:
 	cd A1; make a2
 	
-A3:
+a3:
 	cd A3; make
 
-A4:
+a4:
 	cd A4; make	
 
-A5:
+a5:
 	cd A5; make	
 	
 foo:

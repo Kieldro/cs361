@@ -1,8 +1,48 @@
 import java.io.*;
 import java.util.*;
 
-class PasswordCrack{
+class PasswordCrack extends Thread{
     static final boolean DEBUG = true;
+    static ArrayList<User> users;
+    static ArrayList<String> dict;
+    String currentWord;
+    
+    PasswordCrack(String w){
+    	currentWord = w;
+    }
+    
+    public void run(){
+	   	// if(DEBUG)System.out.printf("Thread %s starting...\n", Thread.currentThread().getName());
+	   	
+		// if(DEBUG)System.out.println("currentWord = " + currentWord);
+		ArrayList<String> mangledWords = mangle();
+		for(String w : mangledWords){
+			for(User u : users){
+				String encStr = jcrypt.crypt(u.salt, w);
+				if(u.found) continue;
+				if(encStr.equals(u.ePass)){
+				    System.out.printf("FOUND: password for %s = \"%s\"\n", 
+				    	Arrays.toString(u.name), w);
+					u.found = true;
+					continue;
+				}
+			}
+		}
+    	
+    }
+    ArrayList<String> mangle (){
+    	ArrayList<String> mangledWords = new ArrayList<String>();
+    	String mWord = currentWord.toUpperCase();
+    	
+    	mangledWords.add(currentWord);		// lower case
+    	mangledWords.add(mWord);
+    	mWord = currentWord.substring(0, 1).toUpperCase() + currentWord.substring(1);
+    	mangledWords.add(mWord);
+    	mWord = currentWord.substring(0, 1) + currentWord.toUpperCase().substring(1);
+    	mangledWords.add(mWord);
+    	
+    	return mangledWords;
+    }
     
     public static void main(String[] args) throws Exception{
         String dictStr = args[0];
@@ -10,45 +50,37 @@ class PasswordCrack{
         if(DEBUG)System.out.println("dictStr = " + dictStr);
         
         // create array of users' info
-        ArrayList<User> users = userInfo(passwords);
-        
+        users = userInfo(passwords);
         
         // input dictionary
         File dFile = new File(dictStr);
         Scanner sc = new Scanner(dFile);
-        ArrayList<String> dict = new ArrayList<String>(400);
-        
+        dict = new ArrayList<String>(400);
         while(sc.hasNext()){
-        	dict.add(sc.next());
+        	dict.add(sc.next().toLowerCase());
         	// if(DEBUG)System.out.println("dict[i] = " + dict.get(i));
         }
-        // dict[390] = name[0];
-        // dict[391] = name[1];
         
-        
-        
-        // compare generated encrypted passwords
         double startTime = System.nanoTime();
         
+        // compare generated encrypted passwords
         // String s= genEncryptedPass();
-        User u = users.get(0);
         for(String word : dict){
-	        // if(DEBUG)System.out.println("word = " + word);
-	        String encStr = jcrypt.crypt(u.salt, word);
-	        if(u.ePass.equals(encStr)){
-	    	    System.out.printf("FOUND: password for %s = %s\n", Arrays.toString(u.name), word);
-	        	return;
-	    	}
+	        PasswordCrack pc = new PasswordCrack(word);
+	        // pc.run();		// single thread
+	        Thread t = new Thread(pc);
+	        t.start();
+	        
+	       
         }
-	   	if(DEBUG)System.out.println("password not.");
-        
+	   	if(DEBUG)System.out.println("Search complete.");
         
         // bandwidth calculations
         double endTime = System.nanoTime();
-        double duration = (endTime - startTime);     // seconds
-        
+        double duration = (endTime - startTime)/1000000;     // seconds
         // System.out.printf("Input size: %d B\n", nBytes);
         System.out.printf("duration: %f ms\n", duration);
+        
         // System.out.printf("Throughput: %f B/s\n", nBytes/duration);
     }
     
@@ -66,10 +98,9 @@ class PasswordCrack{
 	        String salt = ePass.substring(0, 2);
 	        User user = new User(name, salt, ePass);
 	        users.add(user);
-	        if(DEBUG)System.out.println("ePass = " + ePass);
-	        if(DEBUG)System.out.println("salt = " + salt);
-	        if(DEBUG)System.out.println("first name = " + name[0]);
-	        
+	        // if(DEBUG)System.out.println("ePass = " + ePass);
+	        // if(DEBUG)System.out.println("salt = " + salt);
+	        // if(DEBUG)System.out.println("first name = " + name[0]);
 	    }
     	
     	return users;
