@@ -7,4 +7,4 @@ EMAIL: kieldro@gmail.com;
 Assignment 5
 7-10-2014
 Password Cracking: Dictionary Attacks
-timing: 
+timing: seconds to crack

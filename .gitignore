@@ -17,3 +17,5 @@ cscope*
 
 # repo specific
 *.out
+*.dec*
+*.enc*
