@@ -1,48 +1,10 @@
 import java.io.*;
 import java.util.*;
 
-class PasswordCrack extends Thread{
+class PasswordCrack{
     static final boolean DEBUG = true;
-    static ArrayList<User> users;
     static ArrayList<String> dict;
-    String currentWord;
-    
-    PasswordCrack(String w){
-    	currentWord = w;
-    }
-    
-    public void run(){
-	   	// if(DEBUG)System.out.printf("Thread %s starting...\n", Thread.currentThread().getName());
-	   	
-		// if(DEBUG)System.out.println("currentWord = " + currentWord);
-		ArrayList<String> mangledWords = mangle();
-		for(String w : mangledWords){
-			for(User u : users){
-				String encStr = jcrypt.crypt(u.salt, w);
-				if(u.found) continue;
-				if(encStr.equals(u.ePass)){
-				    System.out.printf("FOUND: password for %s = \"%s\"\n", 
-				    	Arrays.toString(u.name), w);
-					u.found = true;
-					continue;
-				}
-			}
-		}
-    	
-    }
-    ArrayList<String> mangle (){
-    	ArrayList<String> mangledWords = new ArrayList<String>();
-    	String mWord = currentWord.toUpperCase();
-    	
-    	mangledWords.add(currentWord);		// lower case
-    	mangledWords.add(mWord);
-    	mWord = currentWord.substring(0, 1).toUpperCase() + currentWord.substring(1);
-    	mangledWords.add(mWord);
-    	mWord = currentWord.substring(0, 1) + currentWord.toUpperCase().substring(1);
-    	mangledWords.add(mWord);
-    	
-    	return mangledWords;
-    }
+    static LinkedList<User> users;
     
     public static void main(String[] args) throws Exception{
         String dictStr = args[0];
@@ -66,13 +28,21 @@ class PasswordCrack extends Thread{
         // compare generated encrypted passwords
         // String s= genEncryptedPass();
         for(String word : dict){
-	        PasswordCrack pc = new PasswordCrack(word);
-	        // pc.run();		// single thread
-	        Thread t = new Thread(pc);
-	        t.start();
-	        
-	       
+	        processWord(word);
+    		// if(DEBUG)System.out.printf("Threads active: %s\n", Thread.activeCount());
         }
+		for(User u : users){
+			if(u.found) continue;		// password already found
+			ArrayList<String> mangledWords = new ArrayList<String>();
+			for(String n : u.name)
+				mangledWords.addAll(mangle(n));
+	    	Cracker crack = new Cracker(mangledWords, u);
+	        crack.run();		// single thread
+	        // Thread t = new Thread(crack);
+	        // t.start();
+	        // threads.add(t);
+		}
+        
 	   	if(DEBUG)System.out.println("Search complete.");
         
         // bandwidth calculations
@@ -84,16 +54,36 @@ class PasswordCrack extends Thread{
         // System.out.printf("Throughput: %f B/s\n", nBytes/duration);
     }
     
-    static ArrayList<User> userInfo(String passwords) throws Exception{
+    static void processWord(String word) throws	 Exception{
+	   	
+		// if(DEBUG)System.out.println("currentWord = " + currentWord);
+		ArrayList<String> mangledWords = mangle(word);
+		ArrayList<Thread> threads = new ArrayList<Thread>(users.size());
+		for(User u : users){
+			if(u.found) continue;		// password already found
+	    	Cracker crack = new Cracker(mangledWords, u);
+	        crack.run();		// single thread
+	        // Thread t = new Thread(crack);
+	        // t.start();
+	        // threads.add(t);
+		}
+		
+		// wait for all threads to terminate
+		for(Thread t : threads){
+			t.join();
+		}
+    }
+    
+    static LinkedList<User> userInfo(String passwords) throws Exception{
     	File pFile = new File(passwords);
         Scanner sc = new Scanner(pFile);
-        ArrayList<User> users = new ArrayList<User>();
+        LinkedList<User> users = new LinkedList<User>();
         while(sc.hasNext()){
 	        String line = sc.nextLine();
 	        // if(DEBUG)System.out.println("line = " + line);
 	        String[] tokens = line.split(":");
 	        // if(DEBUG) for(String s : tokens) System.out.println("tokens[i] = " + s);
-	        String[] name = tokens[4].split(" ");
+	        String[] name = tokens[4].toLowerCase().split(" ");
 	        String ePass = tokens[1];
 	        String salt = ePass.substring(0, 2);
 	        User user = new User(name, salt, ePass);
@@ -104,6 +94,36 @@ class PasswordCrack extends Thread{
 	    }
     	
     	return users;
+    }
+    
+    static ArrayList<String> mangle (String word){
+    	ArrayList<String> mangledWords = new ArrayList<String>();
+    	String mWord;
+    	
+    	mangledWords.add(word);		// lower case
+    	
+    	mWord = word.substring(1);
+    	mangledWords.add(mWord);
+    	mWord = word.substring(0, word.length()-1);
+    	mangledWords.add(mWord);
+    	
+    	// capitalization
+    	mWord = word.toUpperCase();
+    	mangledWords.add(mWord);
+    	mWord = word.substring(0, 1).toUpperCase() + word.substring(1);
+    	mangledWords.add(mWord);
+    	mWord = word.substring(0, 1) + word.toUpperCase().substring(1);
+    	mangledWords.add(mWord);
+    	
+    	mWord = word + word;
+    	mangledWords.add(mWord);
+    	
+    	mWord = new StringBuilder(word).reverse().toString();
+    	mangledWords.add(mWord);
+    	
+    	
+    	
+    	return mangledWords;
     }
     
     protected void spin() throws Exception{
