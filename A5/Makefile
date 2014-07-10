@@ -7,7 +7,7 @@ all: a5
 a5:
 	clear
 	javac *.java
-	java -ea PasswordCrack newshort-words.txt passwd1.txt
+	java -ea PasswordCrack newshort-words.txt passwd2.txt
 	
 clean:
 	rm -rf *.class Security/*.class *.out *.log *.enc* *.dec* keo/ *.class

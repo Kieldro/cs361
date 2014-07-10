@@ -54,18 +54,21 @@ class PasswordCrack{
         // System.out.printf("Throughput: %f B/s\n", nBytes/duration);
     }
     
-    static void processWord(String word) throws	 Exception{
+    static void processWord(String word) throws	Exception{
 	   	
 		// if(DEBUG)System.out.println("currentWord = " + currentWord);
 		ArrayList<String> mangledWords = mangle(word);
 		ArrayList<Thread> threads = new ArrayList<Thread>(users.size());
 		for(User u : users){
-			if(u.found) continue;		// password already found
+			if(u.found){
+				//TODO remove user
+				continue;		// password already found
+			}
 	    	Cracker crack = new Cracker(mangledWords, u);
-	        crack.run();		// single thread
-	        // Thread t = new Thread(crack);
-	        // t.start();
-	        // threads.add(t);
+	        // crack.run();		// single thread
+	        Thread t = new Thread(crack);
+	        t.start();
+	        threads.add(t);
 		}
 		
 		// wait for all threads to terminate
@@ -100,7 +103,7 @@ class PasswordCrack{
     	ArrayList<String> mangledWords = new ArrayList<String>();
     	String mWord;
     	
-    	mangledWords.add(word);		// lower case
+    	// mangledWords.add(word);		// lower case
     	
     	mWord = word.substring(1);
     	mangledWords.add(mWord);
@@ -114,16 +117,46 @@ class PasswordCrack{
     	mangledWords.add(mWord);
     	mWord = word.substring(0, 1) + word.toUpperCase().substring(1);
     	mangledWords.add(mWord);
+
+    	// mangledWords.addAll(capitalizations(word));
+    	
+    	
     	
     	mWord = word + word;
     	mangledWords.add(mWord);
     	
     	mWord = new StringBuilder(word).reverse().toString();
     	mangledWords.add(mWord);
+	    
+	    // if(DEBUG)System.out.println("mangledWords.size() = " + mangledWords.size());
     	
     	
     	
     	return mangledWords;
+    }
+    
+    static ArrayList<String> capitalizations (String word){
+    	ArrayList<String> mangledWords = new ArrayList<String>();
+    	String mWord;
+    	
+    	// capitalization
+    	mangledWords = caps(word);
+    	
+	    // if(DEBUG) for(String s : mangledWords) System.out.println("s = " + s);
+    	
+    	return mangledWords;
+    }
+    
+    static ArrayList<String> caps(String word){
+    	ArrayList<String> list = new ArrayList<String>();
+    	if(word.length() == 1)
+    		list.add(word);
+    	else for(String sub : caps(word.substring(1))){
+    		list.add(word.substring(0,1) + sub);
+    		list.add(word.substring(0,1).toUpperCase() + sub);
+    	}
+    	
+    	return list;
     }
     
     protected void spin() throws Exception{
