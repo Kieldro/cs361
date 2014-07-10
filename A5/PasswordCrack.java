@@ -9,48 +9,70 @@ class PasswordCrack{
         String passwords = args[1];
         if(DEBUG)System.out.println("dictStr = " + dictStr);
         
-        File pFile = new File(passwords);
-        Scanner sc = new Scanner(pFile);
+        // create array of users' info
+        ArrayList<User> users = userInfo(passwords);
         
         
-        String line = sc.nextLine();
-        if(DEBUG)System.out.println("line = " + line);
-        String[] tokens = line.split(":");
-        for(String s : tokens)
-        	if(DEBUG)System.out.println("tokens[i] = " + s);
-        
-        String ePass = tokens[1];
-        String salt = ePass.substring(0, 2);
-        String[] name = tokens[4].split(" ");
-        if(DEBUG)System.out.println("ePass = " + ePass);
-        if(DEBUG)System.out.println("salt = " + salt);
-        if(DEBUG)System.out.println("name[] = " + name[0]);
-        
-        
-        // input Dictionary
+        // input dictionary
         File dFile = new File(dictStr);
-        sc = new Scanner(dFile);
-        String[] dict = new String[400];
-        int i = 0;
+        Scanner sc = new Scanner(dFile);
+        ArrayList<String> dict = new ArrayList<String>(400);
         
         while(sc.hasNext()){
-        	if(DEBUG)System.out.println("i = " + i);
-        	dict[i] = sc.next();
-        	if(DEBUG)System.out.println("dict[i] = " + dict[i]);
-        	++i;
+        	dict.add(sc.next());
+        	// if(DEBUG)System.out.println("dict[i] = " + dict.get(i));
         }
-        dict[390] = name[0];
-        dict[391] = name[1];
+        // dict[390] = name[0];
+        // dict[391] = name[1];
         
+        
+        
+        // compare generated encrypted passwords
+        double startTime = System.nanoTime();
         
         // String s= genEncryptedPass();
+        User u = users.get(0);
+        for(String word : dict){
+	        // if(DEBUG)System.out.println("word = " + word);
+	        String encStr = jcrypt.crypt(u.salt, word);
+	        if(u.ePass.equals(encStr)){
+	    	    System.out.printf("FOUND: password for %s = %s\n", Arrays.toString(u.name), word);
+	        	return;
+	    	}
+        }
+	   	if(DEBUG)System.out.println("password not.");
         
         
-        String str = jcrypt.crypt("(b", "amazing");
-        if(DEBUG)System.out.println("str = " + str);
+        // bandwidth calculations
+        double endTime = System.nanoTime();
+        double duration = (endTime - startTime);     // seconds
         
-        
-        
+        // System.out.printf("Input size: %d B\n", nBytes);
+        System.out.printf("duration: %f ms\n", duration);
+        // System.out.printf("Throughput: %f B/s\n", nBytes/duration);
+    }
+    
+    static ArrayList<User> userInfo(String passwords) throws Exception{
+    	File pFile = new File(passwords);
+        Scanner sc = new Scanner(pFile);
+        ArrayList<User> users = new ArrayList<User>();
+        while(sc.hasNext()){
+	        String line = sc.nextLine();
+	        // if(DEBUG)System.out.println("line = " + line);
+	        String[] tokens = line.split(":");
+	        // if(DEBUG) for(String s : tokens) System.out.println("tokens[i] = " + s);
+	        String[] name = tokens[4].split(" ");
+	        String ePass = tokens[1];
+	        String salt = ePass.substring(0, 2);
+	        User user = new User(name, salt, ePass);
+	        users.add(user);
+	        if(DEBUG)System.out.println("ePass = " + ePass);
+	        if(DEBUG)System.out.println("salt = " + salt);
+	        if(DEBUG)System.out.println("first name = " + name[0]);
+	        
+	    }
+    	
+    	return users;
     }
     
     protected void spin() throws Exception{
