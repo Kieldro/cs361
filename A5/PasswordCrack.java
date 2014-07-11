@@ -22,15 +22,13 @@ class PasswordCrack{
         	dict.add(sc.next().toLowerCase());
         	// if(DEBUG)System.out.println("dict[i] = " + dict.get(i));
         }
-        
+    
+        // String encStr = jcrypt.crypt("ab", "integriTY");
+        // if(DEBUG) System.out.println("encStr = " + encStr);
+
         double startTime = System.nanoTime();
         
         // compare generated encrypted passwords
-        // String s= genEncryptedPass();
-        for(String word : dict){
-	        processWord(word);
-    		// if(DEBUG)System.out.printf("Threads active: %s\n", Thread.activeCount());
-        }
 		for(User u : users){
 			if(u.found) continue;		// password already found
 			ArrayList<String> mangledWords = new ArrayList<String>();
@@ -40,10 +38,29 @@ class PasswordCrack{
 	        crack.run();		// single thread
 	        // Thread t = new Thread(crack);
 	        // t.start();
-	        // threads.add(t);
+	        // threads.add(t);     
 		}
-        
-	   	if(DEBUG)System.out.println("Search complete.");
+
+        for(String word : dict){
+            char fLetter = word.charAt(0);  
+            if(fLetter >= 'a' && fLetter <= 'z'){
+                double progress = (double)(fLetter - 'a') / ('z' - 'a');
+                String bar = spin(progress);
+                double endTime = System.nanoTime();
+                double duration = (endTime - startTime)/1000000000;
+                System.out.printf("%s %.3f sec \"%s\"                        \r", 
+                    bar, duration, word);
+            }
+            ArrayList<String> mangledWords = mangle(word);
+            processList(mangledWords);
+            // if(DEBUG)System.out.prTntf("Threads active: %s\n", Thread.activeCount());
+            // 2 mangles
+            for(String w : mangledWords){
+                ArrayList<String> doubleMangle = mangle(w);
+                processList(doubleMangle);
+            }
+        }
+        if(DEBUG)System.out.println("Search complete.");
         
         // bandwidth calculations
         double endTime = System.nanoTime();
@@ -54,17 +71,15 @@ class PasswordCrack{
         // System.out.printf("Throughput: %f B/s\n", nBytes/duration);
     }
     
-    static void processWord(String word) throws	Exception{
-	   	
-		// if(DEBUG)System.out.println("currentWord = " + currentWord);
-		ArrayList<String> mangledWords = mangle(word);
+    static void processList(ArrayList<String> list) throws  Exception{
+		// if(DEBUG)System.out.println("list.size() = " + list.size());
 		ArrayList<Thread> threads = new ArrayList<Thread>(users.size());
 		for(User u : users){
 			if(u.found){
 				//TODO remove user
 				continue;		// password already found
 			}
-	    	Cracker crack = new Cracker(mangledWords, u);
+	    	Cracker crack = new Cracker(list, u);
 	        // crack.run();		// single thread
 	        Thread t = new Thread(crack);
 	        t.start();
@@ -103,7 +118,7 @@ class PasswordCrack{
     	ArrayList<String> mangledWords = new ArrayList<String>();
     	String mWord;
     	
-    	// mangledWords.add(word);		// lower case
+    	mangledWords.add(word);		// lower case
     	
     	mWord = word.substring(1);
     	mangledWords.add(mWord);
@@ -118,9 +133,7 @@ class PasswordCrack{
     	mWord = word.substring(0, 1) + word.toUpperCase().substring(1);
     	mangledWords.add(mWord);
 
-    	// mangledWords.addAll(capitalizations(word));
-    	
-    	
+    	// mangledWords.addAll(caps(word));
     	
     	mWord = word + word;
     	mangledWords.add(mWord);
@@ -128,25 +141,18 @@ class PasswordCrack{
     	mWord = new StringBuilder(word).reverse().toString();
     	mangledWords.add(mWord);
 	    
+        for(char c = '!'; c <= '~'; ++c){
+            mWord = word + String.valueOf(c);
+            mangledWords.add(mWord);
+
+            mWord = String.valueOf(c) + word;
+            mangledWords.add(mWord);
+        }
 	    // if(DEBUG)System.out.println("mangledWords.size() = " + mangledWords.size());
     	
-    	
-    	
     	return mangledWords;
     }
-    
-    static ArrayList<String> capitalizations (String word){
-    	ArrayList<String> mangledWords = new ArrayList<String>();
-    	String mWord;
-    	
-    	// capitalization
-    	mangledWords = caps(word);
-    	
-	    // if(DEBUG) for(String s : mangledWords) System.out.println("s = " + s);
-    	
-    	return mangledWords;
-    }
-    
+
     static ArrayList<String> caps(String word){
     	ArrayList<String> list = new ArrayList<String>();
     	if(word.length() == 1)
@@ -159,20 +165,17 @@ class PasswordCrack{
     	return list;
     }
     
-    protected void spin() throws Exception{
-        String eqStr = new String(new char[25]).replace("\0", "=");
-        String spaceStr = new String(new char[25]).replace("\0", " ");
-        int i = 0;
-        while(true){
-        	assert (eqStr.length() + spaceStr.length()) == 50;
-        	String bar = eqStr + spaceStr;
-        	System.out.printf("[%s]\r", bar);
-        	Thread.sleep(100);
-        	
-        	// c = (char)(++c % ('Z' - 'A' + 1) + 'A');
-        	
-        	++i;
-        }
+    protected static String spin(double progress) throws Exception{
+        // if(DEBUG)System.out.println("progress = " + progress);
+        int percent = (int)(progress * 100d);
+        int x = (int)(progress * 50);
+        // if(DEBUG)System.out.println("x = " + x);
+        int y = 50 - x;
+        String eqStr = new String(new char[x]).replace("\0", "=");
+        String spaceStr = new String(new char[y]).replace("\0", " ");
+        assert (x + y) == 50;
+        String bar = eqStr + spaceStr;
+        return String.format("[%s] %d%%", bar, percent);
     }
     
 }
