@@ -12,7 +12,6 @@ extra credit: multithreading
 
 Sample output:
 java -ea PasswordCrack newshort-words.txt passwd2.txt
-dictStr = newshort-words.txt
 FOUND: password for [connor, larson] = "nosral"          
 FOUND: password for [evan, whitney] = "^bribed"          44.887 s "bribed"                               
 FOUND: password for [morgan, simmons] = "dIAMETER"          .057 s "diameter"                              
@@ -30,7 +29,6 @@ duration: 884746.273124 ms
 
 
 java -ea PasswordCrack newshort-words.txt passwd1.txt
-dictStr = newshort-words.txt
 FOUND: password for [michael, ferris] = "michael"
 FOUND: password for [abigail, smith] = "liagiba"
 FOUND: password for [maia, salizar] = "Salizar"

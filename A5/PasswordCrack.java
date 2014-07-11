@@ -9,7 +9,7 @@ class PasswordCrack{
     public static void main(String[] args) throws Exception{
         String dictStr = args[0];
         String passwords = args[1];
-        if(DEBUG)System.out.println("dictStr = " + dictStr);
+        // if(DEBUG)System.out.println("dictStr = " + dictStr);
         
         // create array of users' info
         users = userInfo(passwords);
@@ -173,7 +173,7 @@ class PasswordCrack{
         // if(DEBUG)System.out.println("x = " + x);
         int y = 50 - x;
         String eqStr = new String(new char[x]).replace("\0", "=");
-        String spaceStr = new String(new char[y]).replace("\0", " ");
+        String spaceStr = new String(new char[y]).replace("\0", "-");
         assert (x + y) == 50;
         String bar = eqStr + spaceStr;
         return String.format("[%s] %d%%", bar, percent);
