@@ -41,16 +41,17 @@ class PasswordCrack{
 	        // threads.add(t);     
 		}
 
+        int i = 0;
         for(String word : dict){
-            char fLetter = word.charAt(0);  
-            if(fLetter >= 'a' && fLetter <= 'z'){
-                double progress = (double)(fLetter - 'a') / ('z' - 'a');
-                String bar = spin(progress);
-                double endTime = System.nanoTime();
-                double duration = (endTime - startTime)/1000000000;
-                System.out.printf("%s %.3f sec \"%s\"                        \r", 
-                    bar, duration, word);
-            }
+            // progress bar
+            double progress = (double)i++ / dict.size();
+            // double progress = (double)(fLetter - 'a') / ('z' - 'a');
+            String bar = spin(progress);
+            double endTime = System.nanoTime();
+            double duration = (endTime - startTime)/1000000000;
+            System.out.printf("%s %.3f sec \"%s\"                        \r", 
+                bar, duration, word);
+            
             ArrayList<String> mangledWords = mangle(word);
             processList(mangledWords);
             // if(DEBUG)System.out.prTntf("Threads active: %s\n", Thread.activeCount());
@@ -60,13 +61,13 @@ class PasswordCrack{
                 processList(doubleMangle);
             }
         }
-        if(DEBUG)System.out.println("Search complete.");
+        if(DEBUG)System.out.println("\nSearch complete.");
         
         // bandwidth calculations
         double endTime = System.nanoTime();
-        double duration = (endTime - startTime)/1000000;     // seconds
+        double duration = (endTime - startTime)/1000000000;     // seconds
         // System.out.printf("Input size: %d B\n", nBytes);
-        System.out.printf("duration: %f ms\n", duration);
+        System.out.printf("duration: %.3f sec\n", duration);
         
         // System.out.printf("Throughput: %f B/s\n", nBytes/duration);
     }
@@ -167,7 +168,7 @@ class PasswordCrack{
     
     protected static String spin(double progress) throws Exception{
         // if(DEBUG)System.out.println("progress = " + progress);
-        int percent = (int)(progress * 100d);
+        int percent = (int)(progress * 100);
         int x = (int)(progress * 50);
         // if(DEBUG)System.out.println("x = " + x);
         int y = 50 - x;
